@@ -20,6 +20,7 @@ load('../../mat/color_limit/lum_range.mat');
 lum_min = lum_range(1) + 0.1;
 lum_max = lum_range(2) - 3;
 img_lum_modified = renderXYZ_to_luminance(img_xyz, lum_min, lum_max);
+a = 1;
 
 %% 無彩色化
 
