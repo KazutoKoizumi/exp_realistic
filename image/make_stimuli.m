@@ -9,10 +9,10 @@ idx = make_index(flag_par);
 pass.mat = '../../mat/';
 
 %% Main
-i = 57;
+i = 1;
 
 % レンダリング画像読み込み
-load(strcat(pass.mat,object.shape(idx(i,1)),'/',object.material(idx(i,2)),'/',object.light(idx(i,3)),'/',object.rough(idx(i,4)),'/',object.shape(idx(i,1)),'_',object.hue(idx(i,5)),'.mat'));
+load(strcat(pass.mat,object.shape(idx(i,1)),'/',object.material(idx(i,2)),'/',object.light(idx(i,3)),'/',object.rough(idx(i,4)),'/',object.shape(idx(i,1)),'_',object.hue_n(idx(i,5)),'.mat'));
 img_xyz = xyz;
 
 %% 輝度修正（トーンマップ含む）
@@ -23,7 +23,7 @@ img_lum_modified = renderXYZ_to_luminance(img_xyz, lum_min, lum_max);
 
 %% 無彩色化
 % 解像度上げるときにマスクまわりの設定要確認
-load('../../mat/mask/mask.mat');
+load('../../mat/mask/bunny_mask.mat');
 img_gray = colorize_achromatic(img_lum_modified);
 
 
