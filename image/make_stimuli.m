@@ -17,15 +17,15 @@ stimuli_metal = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.rou
 
 count = 0;
 
-for i = 1:1
-    for j = 1:1
-        for k = 1:object.rough_num
+for i = 1:1 % material
+    for j = 1:1 % light
+        for k = 1:object.rough_num % roughness
             stimuli_xyz = zeros(img_y,img_x,3,object.hue_num*2);
             stimuli = zeros(img_y,img_x,3,object.hue_num*2, 'uint8');
             for l = 1:object.hue_num
                 pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
-                %mkdir(strcat(pass.object,'color'));
-                %mkdir(strcat(pass.object,'gray'));
+                mkdir(strcat(pass.object,'color'));
+                mkdir(strcat(pass.object,'gray'));
 
                 % レンダリング画像読み込み
                 load(strcat(pass.object,object.shape(1),'_',object.hue(l),'.mat'));
@@ -67,7 +67,7 @@ for i = 1:1
             montage(stimuli,'size',[4,4]);
             fig_name = strcat(object.shape(1),'_',object.material(i),'_',object.light(j),'_',object.rough(k),'.png');
             saveas(gcf,strcat('../../image/exp_stimuli/',fig_name));
-            %close;
+            close;
             
             count = count+1;
             fprintf('finish : %d/%d\n\n', count, object.all_num);
@@ -75,8 +75,8 @@ for i = 1:1
         end
     end
 end
-            
-%% 画像出力（仮）
-%img = conv_XYZ2RGB(img_gray);
-%figure;
-%image(img)
+
+% まとめたデータを保存
+save('../../stimuli/bunny/stimuli_plastic.mat', 'stimuli_plastic');
+save('../../stimuli/bunny/stimuli_metal.mat', 'stimuli_metal');
+
