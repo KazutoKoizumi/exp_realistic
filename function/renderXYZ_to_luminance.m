@@ -16,7 +16,8 @@ function img_modified = renderXYZ_to_luminance(img_original, lum_min, lum_max)
     lum = img_uvl(:,:,3);
     
     % トーンマップ(ReinHard)
-    lw = max(lum,[],'all') + 0.4;
+    % 0.4
+    lw = max(lum,[],'all')*1.3;
     lum = reinhard(lum, lw);
     
     % 最大輝度をかけて定義通りのXYZにする
