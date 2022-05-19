@@ -23,11 +23,11 @@ key.next = KbName('5');
 % 実験画面の背景色の設定
 cx2u = makecform('xyz2upvpl');
 cu2x = makecform('upvpl2xyz');
-bg_lum = 2;
+bg_lum = 15;
 wp_d65_XYZ = whitepoint('d65');
 wp_d65_uvl = applycform(wp_d65_XYZ, cx2u);
 bg_upvpl = [wp_d65_uvl(1), wp_d65_uvl(2), bg_lum];
-bg_color = reshape(conv_XYZ2RGB(applycform(reshape(bg_upvpl,1,1,3),cu2x)),1,3)
+bg_color = reshape(conv_XYZ2RGB(applycform(reshape(bg_upvpl,1,1,3),cu2x)),1,3);
 
 % 背景のRGBを明示的に設定
 % 測光してD65の色度や刺激画像の色度に近いことを確認
@@ -57,7 +57,7 @@ try
     
     %% 刺激画像読み込み
     i = 1; % material
-    j = 1; % light
+    j = 2; % light
     k = 1; % roughness
     load(strcat('../stimuli/bunny/',object.material(i),'/',object.light(j),'/',object.rough(k),'/stimuli.mat'));
     [sti_image.y,sti_image.x,sti_image.z] = size(stimuli(:,:,:,1));
