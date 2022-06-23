@@ -10,7 +10,7 @@ pass.mat = '../../mat/';
 wp = whitepoint('d65');
 
 for i = 1:1 % material
-    for j =2:2 % light
+    for j = 2:2 % light
         for k = 1:1 % roughness        
             %% 画像読み込み
             pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
@@ -19,10 +19,11 @@ for i = 1:1 % material
             
             lum_max = max(stimuli_xyz(:,:,2,:), [], 'all');
             lum_range = [0, lum_max];
-            sat_range = [0, 0.0880];
+            sat_range = [0, 0.0880]; % 要確認
+            %sat_range = [0, 0.1];
             
             %% Main
-            for h = 1:size(stimuli_xyz,4)
+            for h = 1:size(stimuli_xyz,4)/2
                 img = stimuli_xyz(:,:,:,h);
                 
                 [lum_map,lum_list,sat_map,sat_list] = plot_relation_lum_sat(img,mask,wp,lum_range,sat_range);

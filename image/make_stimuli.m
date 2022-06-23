@@ -17,12 +17,12 @@ stimuli_metal = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.rou
 
 count = 0;
 
-for i = 2:2 % material
-    for j = 2:2 % light
+for i = 1:1 % material
+    for j = 1:2 % light
         for k = 1:1 % roughness
             stimuli_xyz = zeros(img_y,img_x,3,object.hue_num*2);
             stimuli = zeros(img_y,img_x,3,object.hue_num*2, 'uint8');
-            for l = 1:1%object.hue_num
+            for l = 1:object.hue_num
                 pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
                 %mkdir(strcat(pass.object,'color'));
                 %mkdir(strcat(pass.object,'gray'));
