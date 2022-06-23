@@ -23,7 +23,7 @@ function img_gray = colorize_achromatic(img_color, mask)
     img_gray_uvl(:,:,2) = wp_d65_uvl(2);
     
     img_gray_object_uvl = img_gray_uvl .* mask; % 物体部分のみの無彩色画像
-    %img_gray_back_uvl = img_gray_uvl .* ~mask; % 背景部分のみの無彩色画像
+    img_gray_back_uvl = img_gray_uvl .* ~mask; % 背景部分のみの無彩色画像
     img_color_object_uvl = img_color_uvl .* mask; % 物体部分のみの有彩色画像
     img_color_back_uvl = img_color_uvl .* ~mask; % 背景部分のみの有彩色画像
     
