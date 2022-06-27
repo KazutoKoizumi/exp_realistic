@@ -16,8 +16,9 @@ stimuli_plastic = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.r
 stimuli_metal = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.rough_num, 'uint8');
 
 count = 0;
+flag_metal = 1; % 金属刺激の際にCuやAuを使用する場合1 (6/27時点)
 
-for i = 1:1 % material
+for i = 2:2 % material
     for j = 1:2 % light
         for k = 1:1 % roughness
             stimuli_xyz = zeros(img_y,img_x,3,object.hue_num*2);
@@ -28,9 +29,9 @@ for i = 1:1 % material
                 %mkdir(strcat(pass.object,'gray'));
 
                 % レンダリング画像読み込み
-                if i == 1
+                if flag_metal == 0
                     load(strcat(pass.object,object.shape(1),'_',object.hue(l),'.mat'));
-                else 
+                elseif flag_metal == 1 
                     load(strcat(pass.object,object.shape(1),'_Cu.mat'));
                 end
                 img_xyz = xyz;
@@ -70,9 +71,9 @@ for i = 1:1 % material
             
             % 画像
             figure;
-            if i == 1
+            if flag_metal == 0
                 montage(stimuli,'size',[4,4]);
-            else
+            elseif flag_metal == 1
                 image(stimuli(:,:,:,1));
             end
             fig_name = strcat(object.shape(1),'_',object.material(i),'_',object.light(j),'_',object.rough(k),'.png');
