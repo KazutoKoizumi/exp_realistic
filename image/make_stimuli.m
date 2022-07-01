@@ -10,15 +10,22 @@ pass.mat = '../../mat/';
 img_y = 720;
 img_x = 960;
 
+pass.calibration = '/home/koizumi/experiment/';
+spectrum_data = csvread(strcat(pass.calibration,'calibration/spectrum_data.csv'));
+rgb_converter = tnt.RgbConverter(spectrum_data);
+xyz_min = rgb_converter.linear_rgb_to_xyz([0,0,0]');
+xyz_max = rgb_converter.linear_rgb_to_xyz([1,1,1]');
+lum_range = [xyz_min(2), xyz_max(2)];
+    
 %% Main
 % 素材ごとに刺激画像データ（RGB値）をまとめる
 stimuli_plastic = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.rough_num, 'uint8');
 stimuli_metal = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.rough_num, 'uint8');
 
 count = 0;
-flag_metal = 1; % 金属刺激の際にCuやAuを使用する場合1 (6/27時点)
+flag_metal = 0; % 金属刺激の際にCuやAuを使用する場合1 (6/27時点)
 
-for i = 2:2 % material
+for i = 1:1 % material
     for j = 1:2 % light
         for k = 1:1 % roughness
             stimuli_xyz = zeros(img_y,img_x,3,object.hue_num*2);
@@ -31,16 +38,18 @@ for i = 2:2 % material
                 % レンダリング画像読み込み
                 if flag_metal == 0
                     load(strcat(pass.object,object.shape(1),'_',object.hue(l),'.mat'));
-                elseif flag_metal == 1 
+                elseif i == 2 && flag_metal == 1 
                     load(strcat(pass.object,object.shape(1),'_Cu.mat'));
                 end
                 img_xyz = xyz;
 
                 %% 輝度修正（トーンマップ含む）
-                load('../../mat/color_limit/lum_range.mat');
-                lum_min = lum_range(1) + 0.1;
+                lum_min = lum_range(1) * 2;
                 lum_max = lum_range(2) - 10;
                 img_lum_modified = renderXYZ_to_luminance(img_xyz, lum_min, lum_max);
+                
+                %% 低輝度側の色域調整
+                lum_threshold = 0.5;
 
                 %% 無彩色化
                 load('../../mat/mask/bunny_mask.mat');

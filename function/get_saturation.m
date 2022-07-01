@@ -19,11 +19,10 @@ function [sat_map, sat_list] = get_saturation(img, mask, wp)
     end
     
     % u'v'に変換
-    cx2u = makecform('xyz2upvpl');
-    upvpl = applycform(img,cx2u);
+    upvpl = tnt.three_channel_convert([], img, @(c,d) XYZTouvY(d));
     
     % 白色点
-    wp_uvl = applycform(wp, cx2u);
+    wp_uvl = tnt.three_channel_convert([], wp', @(c,d) XYZTouvY(d))';
     
     % 彩度計算
     delta_u = upvpl(:,:,1) - wp_uvl(1);
