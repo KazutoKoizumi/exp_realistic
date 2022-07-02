@@ -49,18 +49,19 @@ for i = 1:1 % material
                 img_lum_modified = renderXYZ_to_luminance(img_xyz, lum_min, lum_max);
                 
                 %% 低輝度側の色域調整
-                lum_threshold = 0.5;
+                lum_threshold = 15;
+                img_modified = adjust_saturation(img_lum_modified, lum_threshold);
 
                 %% 無彩色化
                 load('../../mat/mask/bunny_mask.mat');
-                img_gray = colorize_achromatic(img_lum_modified, mask);
+                img_gray = colorize_achromatic(img_modified, mask);
                 
                 %% 後処理1
                 % 色相をまとめる
-                stimuli_xyz(:,:,:,l) = img_lum_modified;
+                stimuli_xyz(:,:,:,l) = img_modified;
                 stimuli_xyz(:,:,:,object.hue_num+l) = img_gray;
                 
-                stimuli(:,:,:,l) = cast(conv_XYZ2RGB(img_lum_modified),'uint8');
+                stimuli(:,:,:,l) = cast(conv_XYZ2RGB(img_modified),'uint8');
                 stimuli(:,:,:,object.hue_num+l) = cast(conv_XYZ2RGB(img_gray),'uint8');
                 
                 fprintf('hue finish : %d/%d\n\n', l, object.hue_num);

@@ -9,7 +9,7 @@ pass.mat = '../../mat/';
 
 wp = whitepoint('d65');
 
-for i = 2:2 % material
+for i = 1:1 % material
     for j = 1:2 % light
         for k = 1:1 % roughness        
             %% 画像読み込み
@@ -23,7 +23,7 @@ for i = 2:2 % material
             %sat_range = [0, 0.1];
             
             %% Main
-            for h = 1:1%size(stimuli_xyz,4)/2
+            for h = 1:size(stimuli_xyz,4)/2
                 img = stimuli_xyz(:,:,:,h);
                 
                 [lum_map,lum_list,sat_map,sat_list] = plot_relation_lum_sat(img,mask,wp,lum_range,sat_range);

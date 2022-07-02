@@ -24,8 +24,14 @@ function img_modified = renderXYZ_to_luminance(img_original, lum_min, lum_max)
     %lw = max(lum,[],'all')*1.3;
     lum = reinhard(lum);
     
+    lum = lum .* (4/5);
+    
     % ディスプレイの輝度範囲(あるいはそれより少し狭い範囲)に再スケーリングする
-    lum = rescale(lum, lum_min, lum_max);
+    %lum = rescale(lum, lum_min, lum_max);
+    
+    a = lum_max - lum_min;
+    b = lum_min;
+    lum = a .* lum + b;
     
     % 最大輝度をかけて定義通りのXYZにする
     %lum = lum .* lum_max;
@@ -45,7 +51,7 @@ function img_modified = renderXYZ_to_luminance(img_original, lum_min, lum_max)
     % PTBの関数XYZTouvYを使って色空間の変換を行う場合
     img_modified = tnt.three_channel_convert([], img_uvl, @(c, d) uvYToXYZ(d));
 
-    img_modified = img_modified * (4/5);
+    %img_modified = img_modified * (3/5);
 
 end
 
