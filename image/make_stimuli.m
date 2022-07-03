@@ -26,8 +26,8 @@ count = 0;
 flag_metal = 0; % 金属刺激の際にCuやAuを使用する場合1 (6/27時点)
 
 for i = 1:1 % material
-    for j = 1:2 % light
-        for k = 1:1 % roughness
+    for j = 2:2 % light
+        for k = 2:2 % roughness
             stimuli_xyz = zeros(img_y,img_x,3,object.hue_num*2);
             stimuli = zeros(img_y,img_x,3,object.hue_num*2, 'uint8');
             for l = 1:object.hue_num
@@ -44,7 +44,7 @@ for i = 1:1 % material
                 img_xyz = xyz;
 
                 %% 輝度修正（トーンマップ含む）
-                lum_min = lum_range(1) * 2;
+                lum_min = lum_range(1) * 3;
                 lum_max = lum_range(2) - 10;
                 img_lum_modified = renderXYZ_to_luminance(img_xyz, lum_min, lum_max);
                 
@@ -91,8 +91,10 @@ for i = 1:1 % material
             %close;
             
             count = count+1;
+            fprintf('material:%s,  light:%s,  roughness:%s\n', object.material(i), object.light(j), object.rough(k));
             fprintf('finish : %d/%d\n\n', count, object.all_num);
         end
+        
     end
 end
 
