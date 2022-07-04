@@ -9,22 +9,29 @@ function img_modified = adjust_saturation(img, lum_threshold)
     pass = '/home/koizumi/experiment/';
     spectrum_data = csvread(strcat(pass,'calibration/spectrum_data.csv'));
     rgb_converter = tnt.RgbConverter(spectrum_data);
+    
+    load(strcat(pass,'exp_realistic/mat/mask/bunny_mask.mat'));
 
     [iy,ix,iz] = size(img);
     
     img_uvl = tnt.three_channel_convert([], img, @(c,d) XYZTouvY(d));
+    img_rgb = rgb_converter.xyz_to_linear_rgb(img);
     
     wp_xyz = whitepoint('d65')';
     wp_uvl = tnt.three_channel_convert([], wp_xyz, @(c,d) XYZTouvY(d));
     
     for i = 1:iy
         for j = 1:ix
-            if img_uvl(i,j,3) < lum_threshold % 閾値より輝度が小さい場合
+            rgb = permute(img_rgb(i,j,:), [3 1 2]);
+            
+            % 色域内かどうか確認
+            if any(rgb < 0 | rgb > 1, 'all')
+                % 色域外の場合
                 
-                % 色域内かどうか確認、色域外の場合は彩度を小さくする
-                xyz = permute(img(i,j,:), [3 1 2]);
-                rgb = rgb_converter.xyz_to_linear_rgb(xyz);
-                if any(rgb<0, "all")
+                % 輝度閾値と比較
+                if img_uvl(i,j,3) < lum_threshold
+                    % 閾値より輝度が小さい場合、色域内に収まるまで彩度を下げる
+                    
                     tmp_uvl = permute(img_uvl(i,j,:), [3 1 2]);
                     
                     % 角度と距離を求める（d65色度座標を白色点とし、これを中心として極座標表現）
@@ -59,7 +66,29 @@ function img_modified = adjust_saturation(img, lum_threshold)
                     img_uvl(i,j,1) = new_uvl(1);
                     img_uvl(i,j,2) = new_uvl(2);
                     
+                else
+                    % 輝度閾値より高輝度の場合
+                    
+                    % オブジェクト領域か判定
+                    if logical(mask(i,j))
+                        % オブジェクト内部で色域外の場合
+                        fprintf('警告：物体内の高輝度領域で色域外の点があります\n\n');
+                    else
+                        % オブジェクト外で色域外の場合、周囲のピクセルに合わせる
+                        if i == 1 && j == 1 % 左上
+                            img_uvl(i,j,1) = img_uvl(i+1,j,1);
+                            img_uvl(i,j,2) = img_uvl(i+1,j,2);
+                        elseif i == iy && j == 1 % 左下
+                            img_uvl(i,j,1) = img_uvl(i-1,j,1);
+                            img_uvl(i,j,2) = img_uvl(i-1,j,2);
+                        else
+                            img_uvl(i,j,1) = img_uvl(i-1,j,1);
+                            img_uvl(i,j,2) = img_uvl(i-1,j,2);
+                        end
+                    end
+                    
                 end
+                    
 
             end
             
