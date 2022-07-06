@@ -20,31 +20,45 @@ lum_range = [xyz_min(2), xyz_max(2)];
 %% Main
 % 素材ごとに刺激画像データ（RGB値）をまとめる
 stimuli_plastic = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.rough_num, 'uint8');
-stimuli_metal = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.rough_num, 'uint8');
+stimuli_metal = zeros(img_y,img_x,3,object.hue_metal_num*2,object.light_num,object.rough_num, 'uint8');
 
 count = 0;
-flag_metal = 0; % 金属刺激の際にCuやAuを使用する場合1 (6/27時点)
+%flag_metal = 1; % 金属刺激の際にCuやAuを使用する場合1 (6/27時点)
 
-for i = 1:1 % material
-    for j = 2:2 % light
-        for k = 2:2 % roughness
-            stimuli_xyz = zeros(img_y,img_x,3,object.hue_num*2);
-            stimuli = zeros(img_y,img_x,3,object.hue_num*2, 'uint8');
-            for l = 1:object.hue_num
+for i = 1:2 % material
+    
+    if i == 1
+        hue_name = object.hue;
+        hue_num = object.hue_num;
+    elseif i == 2
+        hue_name = object.hue_metal;
+        hue_num = object.hue_metal_num;
+    end 
+    
+    for j = 1:2 % light
+        for k = 1:3 % roughness
+            
+            stimuli_xyz = zeros(img_y,img_x,3,hue_num*2);
+            stimuli = zeros(img_y,img_x,3,hue_num*2, 'uint8');
+            
+            for l = 1:hue_num 
                 pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
                 %mkdir(strcat(pass.object,'color'));
                 %mkdir(strcat(pass.object,'gray'));
 
                 % レンダリング画像読み込み
+                load(strcat(pass.object,object.shape(1),'_',hue_name(l),'.mat'));
+                %{
                 if flag_metal == 0
                     load(strcat(pass.object,object.shape(1),'_',object.hue(l),'.mat'));
                 elseif i == 2 && flag_metal == 1 
                     load(strcat(pass.object,object.shape(1),'_Cu.mat'));
                 end
+                %}
                 img_xyz = xyz;
 
                 %% 輝度修正（トーンマップ含む）
-                lum_min = lum_range(1) * 3;
+                lum_min = lum_range(1) + 0.0192;
                 lum_max = lum_range(2) - 10;
                 img_lum_modified = renderXYZ_to_luminance(img_xyz, lum_min, lum_max);
                 
@@ -59,12 +73,12 @@ for i = 1:1 % material
                 %% 後処理1
                 % 色相をまとめる
                 stimuli_xyz(:,:,:,l) = img_modified;
-                stimuli_xyz(:,:,:,object.hue_num+l) = img_gray;
+                stimuli_xyz(:,:,:,hue_num+l) = img_gray;
                 
                 stimuli(:,:,:,l) = cast(conv_XYZ2RGB(img_modified),'uint8');
-                stimuli(:,:,:,object.hue_num+l) = cast(conv_XYZ2RGB(img_gray),'uint8');
+                stimuli(:,:,:,hue_num+l) = cast(conv_XYZ2RGB(img_gray),'uint8');
                 
-                fprintf('hue finish : %d/%d\n\n', l, object.hue_num);
+                fprintf('hue finish : %d/%d\n\n', l, hue_num);
             end
             %% 後処理2
             % 色相以外のデータをまとめる
@@ -79,16 +93,55 @@ for i = 1:1 % material
             save(strcat(pass.object,'stimuli_xyz.mat'), 'stimuli_xyz');
             save(strcat(pass.stimuli,'stimuli.mat'), 'stimuli');
             
+            %{
+            if flag_metal == 0
+                save(strcat(pass.object,'stimuli_xyz.mat'), 'stimuli_xyz');
+                save(strcat(pass.stimuli,'stimuli.mat'), 'stimuli');
+            elseif i == 2 && flag_metal == 1
+                save(strcat(pass.object,'stimuli_xyz_preset.mat'), 'stimuli_xyz');
+                save(strcat(pass.stimuli,'stimuli_preset.mat'), 'stimuli');
+            end
+            %}
+            
             % 画像
             figure;
+            if i == 1
+                montage(stimuli,'size',[4,4]);
+                fig_name = strcat(object.shape(1),'_',object.material(i),'_',object.light(j),'_',object.rough(k),'.png');
+                saveas(gcf,strcat('../../image/exp_stimuli/',fig_name));
+                % close
+            elseif i == 2
+                % マンセル色
+                img = zeros(img_y, img_x, 3, object.hue_num*2, 'uint8');
+                img(:,:,:,1:8) = stimuli(:,:,:,1:8);
+                img(:,:,:,9:16) = stimuli(:,:,:,11:18);
+                montage(img,'size',[4,4]);
+                fig_name = strcat(object.shape(1),'_',object.material(i),'_',object.light(j),'_',object.rough(k),'.png');
+                saveas(gcf,strcat('../../image/exp_stimuli/',fig_name));
+                % close
+                
+                % CU, Au
+                img = zeros(img_y, img_x, 3, 4, 'uint8');
+                img(:,:,:,1:2) = stimuli(:,:,:,9:10);
+                img(:,:,:,3:4) = stimuli(:,:,:,19:20);
+                figure;
+                montage(img,'size',[2,2]);
+                fig_name = strcat(object.shape(1),'_',object.material(i),'_',object.light(j),'_',object.rough(k),'_preset.png');
+                saveas(gcf,strcat('../../image/exp_stimuli/',fig_name));
+                % close
+            end
+            
+            %{
             if flag_metal == 0
                 montage(stimuli,'size',[4,4]);
             elseif flag_metal == 1
                 image(stimuli(:,:,:,1));
             end
+            
             fig_name = strcat(object.shape(1),'_',object.material(i),'_',object.light(j),'_',object.rough(k),'.png');
             saveas(gcf,strcat('../../image/exp_stimuli/',fig_name));
             %close;
+            %}
             
             count = count+1;
             fprintf('material:%s,  light:%s,  roughness:%s\n', object.material(i), object.light(j), object.rough(k));
