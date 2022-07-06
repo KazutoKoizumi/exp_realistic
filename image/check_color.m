@@ -7,11 +7,23 @@ object = object_paramater(flag_par); % 各パラメータまとめ
 idx = make_index(flag_par);
 pass.mat = '../../mat/';
 
-wp = whitepoint('d65');
+wp_xyz = whitepoint('d65')';
+wp_uvl = tnt.three_channel_convert([], wp_xyz, @(c,d) XYZTouvY(d));
 
-for i = 1:1 % material
+count = 0;
+
+for i = 1:2 % material
+    
+    if i == 1
+        hue_name = object.hue;
+        hue_num = object.hue_num;
+    elseif i == 2
+        hue_name = object.hue_metal;
+        hue_num = object.hue_metal_num;
+    end
+    
     for j = 1:2 % light
-        for k = 1:1 % roughness        
+        for k = 1:3 % roughness        
             %% 画像読み込み
             pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
             load(strcat(pass.object,'stimuli_xyz.mat'));
@@ -19,16 +31,27 @@ for i = 1:1 % material
             
             lum_max = max(stimuli_xyz(:,:,2,:), [], 'all');
             lum_range = [0, lum_max];
-            sat_range = [0, 0.0880]; % 要確認
-            %sat_range = [0, 0.1];
+            %sat_range = [0, 0.0880]; % 要確認
+            sat_range = [0, 0.1];
             
             %% Main
-            for h = 1:size(stimuli_xyz,4)/2
+            for h = 1:hue_num %hue_num
                 img = stimuli_xyz(:,:,:,h);
                 
-                [lum_map,lum_list,sat_map,sat_list] = plot_relation_lum_sat(img,mask,wp,lum_range,sat_range);
+                % 輝度取得
+                [lum_map, lum_list] = get_luminance(img, mask);
                 
+                % 彩度取得
+                [sat_map, sat_list] = get_saturation(img, mask, wp_xyz);
                 
+                %[lum_map,lum_list,sat_map,sat_list] = plot_relation_lum_sat(img,mask,wp,lum_range,sat_range);
+                
+                % 色相取得
+                [hue_map, hue_list] = get_hue(img, mask, wp_xyz);
+                hue_map = hue_map + standardizeMissing(mask,0);
+                hue_map_deg = rad2deg(hue_map);
+                hue_list_deg = rad2deg(hue_list);
+
                 % 最大彩度の探索
                 tmp = max(sat_map, [], 'all');
                 if h == 1
@@ -37,7 +60,77 @@ for i = 1:1 % material
                 if sat_max < tmp
                     sat_max = tmp;
                 end
+                
+                %% プロット
+                f = figure;
+                
+                % 輝度マップ
+                subplot(2,3,1);
+                imagesc(lum_map, lum_range);
+                colormap jet;
+                colorbar;
+                title('luminance');
+                
+                % 彩度マップ
+                subplot(2,3,2);
+                imagesc(sat_map, sat_range);
+                colormap jet;
+                colorbar;
+                title('saturation');
+                
+                % 色相マップ
+                subplot(2,3,3);
+                imagesc(hue_map_deg);
+                colormap jet;
+                colorbar;
+                title('color direction');
+                
+                % 輝度-彩度
+                subplot(2,3,4);
+                scatter(lum_list, sat_list);
+                xlim(lum_range);
+                ylim(sat_range);
+                title('luminance, saturation');
+                xlabel('luminance');
+                ylabel('saturation');
+                
+                % 色度プロットで色相と彩度確認
+                img_uvl = tnt.three_channel_convert([], img, @(c,d) XYZTouvY(d));
+                img_u = img_uvl(:,:,1);
+                img_v = img_uvl(:,:,2);
+                img_uvl_bunny(:,1) = img_u(logical(mask));
+                img_uvl_bunny(:,2) = img_v(logical(mask));
+                subplot(2,3,5);
+                scatter(img_uvl_bunny(:,1), img_uvl_bunny(:,2));
+                hold on;
+                scatter(wp_uvl(1), wp_uvl(2), 48, [0,0,0], 'filled');
+                hold off;
+                xlim([0 0.41]);
+                ylim([0.3 0.56]);
+                title("u'v' coordinate");
+                xlabel("u'");
+                ylabel("v'");
+                
+                if i == 1
+                    sg_txt = strcat("bunny, ", object.material(i), ", ", object.light(j), ", ", object.rough(k), ", ", object.hue(h));
+                    fig_name = strcat('color_info_',object.material(i),'_',object.light(j),'_',object.rough(k),'_',object.hue(h),'.png');
+                elseif i == 2
+                    sg_txt = strcat("bunny, ", object.material(i), ", ", object.light(j), ", ", object.rough(k), ", ", object.hue_metal(h));
+                    fig_name = strcat('color_info_',object.material(i),'_',object.light(j),'_',object.rough(k),'_',object.hue_metal(h),'.png');
+                end
+                sgtitle(sg_txt);
+                
+                f.WindowState = 'maximized';
+                file_name = strcat('../../image/stimuli_color_information/',fig_name);
+                saveas(gcf, file_name);
+                close;
+                
+                fprintf('hue finish : %d/%d\n\n', h, hue_num);
             end
+            
+            count = count+1;
+            fprintf('material:%s,  light:%s,  roughness:%s\n', object.material(i), object.light(j), object.rough(k));
+            fprintf('finish : %d/%d\n\n', count, object.all_num);
         end
     end
 end
