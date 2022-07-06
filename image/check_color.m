@@ -27,6 +27,8 @@ for i = 1:2 % material
             %% 画像読み込み
             pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
             load(strcat(pass.object,'stimuli_xyz.mat'));
+            pass.stimuli = strcat('../../stimuli/',object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
+            load(strcat(pass.stimuli,'stimuli.mat'));
             load('../../mat/mask/bunny_mask.mat');
             
             lum_max = max(stimuli_xyz(:,:,2,:), [], 'all');
@@ -106,10 +108,14 @@ for i = 1:2 % material
                 scatter(wp_uvl(1), wp_uvl(2), 48, [0,0,0], 'filled');
                 hold off;
                 xlim([0 0.41]);
-                ylim([0.3 0.56]);
+                ylim([0.25 0.58]);
                 title("u'v' coordinate");
                 xlabel("u'");
                 ylabel("v'");
+                
+                % 刺激画像表示
+                subplot(2,3,6);
+                image(stimuli(:,:,:,h));
                 
                 if i == 1
                     sg_txt = strcat("bunny, ", object.material(i), ", ", object.light(j), ", ", object.rough(k), ", ", object.hue(h));
