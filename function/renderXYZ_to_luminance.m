@@ -24,7 +24,7 @@ function img_modified = renderXYZ_to_luminance(img_original, lum_min, lum_max)
     %lw = max(lum,[],'all')*1.3;
     lum = reinhard(lum);
     
-    lum = lum .* (4/5);
+    lum = lum .* (7/10);
     
     % ディスプレイの輝度範囲(あるいはそれより少し狭い範囲)に再スケーリングする
     %lum = rescale(lum, lum_min, lum_max);

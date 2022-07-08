@@ -33,8 +33,7 @@ for i = 1:2 % material
             
             lum_max = max(stimuli_xyz(:,:,2,:), [], 'all');
             lum_range = [0, lum_max];
-            %sat_range = [0, 0.0880]; % 要確認
-            sat_range = [0, 0.1];
+            sat_range = [0, 0.13]; % これより高彩度の部分もある
             
             %% Main
             for h = 1:hue_num %hue_num
@@ -90,8 +89,8 @@ for i = 1:2 % material
                 % 輝度-彩度
                 subplot(2,3,4);
                 scatter(lum_list, sat_list);
-                xlim(lum_range);
-                ylim(sat_range);
+                %xlim(lum_range);
+                %ylim(sat_range);
                 title('luminance, saturation');
                 xlabel('luminance');
                 ylabel('saturation');
