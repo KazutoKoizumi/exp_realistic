@@ -23,7 +23,6 @@ stimuli_plastic = zeros(img_y,img_x,3,object.hue_num*2,object.light_num,object.r
 stimuli_metal = zeros(img_y,img_x,3,object.hue_metal_num*2,object.light_num,object.rough_num, 'uint8');
 
 count = 0;
-%flag_metal = 1; % 金属刺激の際にCuやAuを使用する場合1 (6/27時点)
 
 for i = 1:2 % material
     
@@ -58,8 +57,8 @@ for i = 1:2 % material
                 img_xyz = xyz;
 
                 %% 輝度修正（トーンマップ含む）
-                lum_min = lum_range(1) + 0.0192;
-                lum_max = lum_range(2) - 10;
+                lum_min = lum_range(1) + 0.01;
+                lum_max = lum_range(2) - 15;
                 img_lum_modified = renderXYZ_to_luminance(img_xyz, lum_min, lum_max);
                 
                 %% 低輝度側の色域調整
@@ -152,6 +151,6 @@ for i = 1:2 % material
 end
 
 % まとめたデータを保存
-%save('../../stimuli/bunny/stimuli_plastic.mat', 'stimuli_plastic');
-%save('../../stimuli/bunny/stimuli_metal.mat', 'stimuli_metal');
+save('../../stimuli/bunny/stimuli_plastic.mat', 'stimuli_plastic');
+save('../../stimuli/bunny/stimuli_metal.mat', 'stimuli_metal');
 

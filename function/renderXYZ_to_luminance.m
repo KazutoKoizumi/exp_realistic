@@ -19,12 +19,14 @@ function img_modified = renderXYZ_to_luminance(img_original, lum_min, lum_max)
     
     lum = img_uvl(:,:,3);
     
-    % トーンマップ(ReinHard)
-    % 0.4
-    %lw = max(lum,[],'all')*1.3;
-    lum = reinhard(lum);
+    % 輝度が1を超えている場合はトーンマップ
+    if max(lum,[],'all') > 1
+        % トーンマップ(ReinHard)
+        %lw = max(lum,[],'all')*1.3;
+        lum = reinhard(lum);
+    end
     
-    lum = lum .* (7/10);
+    lum = lum .* (50/100);
     
     % ディスプレイの輝度範囲(あるいはそれより少し狭い範囲)に再スケーリングする
     %lum = rescale(lum, lum_min, lum_max);
