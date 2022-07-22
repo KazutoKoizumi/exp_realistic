@@ -165,17 +165,15 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
             id = idx(trial.idx_num,:);
         end
         
-        left_right = randi([1 2]);
+        left_right = randi([1 2]); % 左に呈示する画像がhue1かhue2か
+        
+        pass.stimuli = strcat('../stimuli/',object.shape,'/',object.material(id(1)) ,'/',object.light(id(2)),'/',object.rough(id(3)));
+        load(strcat(pass.stimuli,'/stimuli.mat')); % 刺激読み込み
+        sti_image.rgb_left = stimuli(:,:,:,id(3+left_right)); % 左に呈示する画像のrgb値
+        sti_image.rgb_right = stimuli(:,:,:,id(6-left_right)); % 右に呈示する画像のrgb値
         
         
         %% ここから修正
-        
-        
-        pass.stimuli = strcat('../stimuli/',object.shape(id(1)),'/',object.light(id(2)),'/',object.diffuse(id(3)),'/',object.rough(id(4)),'/',object.method(id(5)));
-        load(strcat(pass.stimuli,'/stimuli.mat')); % 刺激読み込み
-        sti_image.rgb_left = stimuli(:,:,:,id(5+left_right)); % 左に呈示する画像のrgb値
-        sti_image.rgb_right = stimuli(:,:,:,id(8-left_right)); % 右に呈示する画像のrgb値
-        
         % 刺激呈示位置
         %position.rx = randi(fix(win_width-(2*sx+distance))-1);
         %position.ry = randi(fix(win_height-sy)-1);
