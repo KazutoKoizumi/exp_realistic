@@ -75,7 +75,7 @@ end
 
 % 呈示順、全ての結果の保存、セッションごとの結果の保存の設定
 varTypes = {'string','string','double','string','string','string','datetime','string'};
-varNames = {'material','light','rough','hue1','hue2','win','responseTime','left_or_right'};
+varNames = {'material','light','rough','hue1','hue2','win','responseTime','left_or_right'}; % left_or_right:左右どちらの刺激を被験者が選択したか
 if session_num == 1
     % 呈示順、結果保存テーブル、セッションの記録を作る
     result.data = table('Size',[trial.all,size(varTypes,2)],'VariableTypes',varTypes,'VariableNames',varNames);
@@ -111,23 +111,12 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
     
     %% 刺激背景画像読み込み
     %% 要確認
-    
-    
-    
     load('../stimuli/back/back_stimuli.mat');
-    %{
-    Screen('TextSize', winPtr, 50);
-    DrawFormattedText(winPtr, 'Please wait', 'center', 'center',[255 255 255]);
-    Screen('Flip', winPtr);
-    load('../stimuli/stimuli_bunny.mat');
-    load('../stimuli/stimuli_dragon.mat');
-    load('../stimuli/stimuli_blob.mat');
-    %}
     [sti_image.y,sti_image.x,sti_image.z] = size(back_stimuli(:,:,:,1));
     
     %% 実験パラメータ設定
     % 時間関連
-    exp_time.show_stimuli = 1; % 刺激の呈示時間[s]
+    exp_time.show_stimuli = 1.0; % 刺激の呈示時間[s]
     exp_time.before = 0.5; % 呈示前の時間[s]
     exp_time.interval = 0.5; % 試行間のインターバルの時間[s]
     
@@ -167,13 +156,19 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         
         left_right = randi([1 2]); % 左に呈示する画像がhue1かhue2か
         
+        % 呈示刺激のmaterialがplasticかmetalかで色相リストを変更
+        if id(1) == 1 % plastic
+            hue_list = object.hue_pair_list;
+        elseif id(1) == 2 % metal
+            hue_list = object.hue_metal_pair_list;
+        end
+        
+        % 刺激読み込み
         pass.stimuli = strcat('../stimuli/',object.shape,'/',object.material(id(1)) ,'/',object.light(id(2)),'/',object.rough(id(3)));
         load(strcat(pass.stimuli,'/stimuli.mat')); % 刺激読み込み
         sti_image.rgb_left = stimuli(:,:,:,id(3+left_right)); % 左に呈示する画像のrgb値
         sti_image.rgb_right = stimuli(:,:,:,id(6-left_right)); % 右に呈示する画像のrgb値
         
-        
-        %% ここから修正
         % 刺激呈示位置
         %position.rx = randi(fix(win_width-(2*sx+distance))-1);
         %position.ry = randi(fix(win_height-sy)-1);
@@ -195,10 +190,11 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         end
         fprintf('trial number in this session : %d\n', i);
         fprintf('stimuli number : %d\n', trial.idx_num);
-        fprintf('%s, %s, diffuse:%f, rough:%f, %s\n', object.shape(id(1)),object.light(id(2)),object.diffuse_v(id(3)),object.rough_v(id(4)),object.method(id(5)));
-        fprintf('color pair : %s vs %s\n', object.hue(id(5+left_right)),object.hue(id(8-left_right)));
+        fprintf('%s, %s, rough:%f\n', object.material(id(1)),object.light(id(2)),object.rough_v(id(3)));
+        fprintf('color pair : %s vs %s\n', hue_list(id(3+left_right)),hue_list(id(6-left_right)));
         
         %% 刺激呈示前に背景のみ呈示
+        % 背景刺激作成
         sti_image.tex_back_left = Screen('MakeTexture', winPtr,back_stimuli(:,:,:,id(2)));
         sti_image.tex_back_right = Screen('MakeTexture',winPtr,back_stimuli(:,:,:,id(2)));
         Screen('DrawTexture', winPtr, sti_image.tex_back_left, [], position.left);
@@ -214,7 +210,7 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         %exp_time.flip = Screen('Flip', winPtr);
         
         % capture
-        sti_image.capture = Screen('GetImage',winPtr);
+        %sti_image.capture = Screen('GetImage',winPtr);
         
         % 1秒後に刺激を消す
         Screen('FillRect', winPtr, bg.color);
@@ -230,10 +226,12 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
             if keyIsDown && keyCode(key.left)
                 flag = 1;
                 response = left_right;
+                select_LR = "left";
                 break;
             elseif keyIsDown && keyCode(key.right)
                 flag = 2;
                 response = 3 - left_right;
+                select_LR = "right";
                 break;
             elseif keyIsDown && keyCode(key.escape)
                 flag = 3;
@@ -253,14 +251,13 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         
         %% 応答データを記録
         if i > trial.trash
-            %session_result(i-trial.trash,:) = {object.shape(id(1)),object.light(id(2)),object.diffuse_v(id(3)),object.rough_v(id(4)),object.method(id(5)),object.hue(id(6)),object.hue(id(7)),object.hue(id(5+response)),exp_time.response};
-            result.(strcat('session',num2str(session_num)))(i-trial.trash,:) = {object.shape(id(1)),object.light(id(2)),object.diffuse_v(id(3)),object.rough_v(id(4)),object.method(id(5)),object.hue(id(6)),object.hue(id(7)),object.hue(id(5+response)),exp_time.response,left_right};
-            result.data(trial.idx_num,:) = {object.shape(id(1)),object.light(id(2)),object.diffuse_v(id(3)),object.rough_v(id(4)),object.method(id(5)),object.hue(id(6)),object.hue(id(7)),object.hue(id(5+response)),exp_time.response,left_right};
+            result.(strcat('session',num2str(session_num)))(i-trial.trash,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
+            result.data(trial.idx_num,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
         end
         
         % 応答表示
         fprintf('pressed key : %d\n', flag);
-        fprintf('subject response : %s\n\n', object.hue(id(5+response)));
+        fprintf('subject response : %s\n\n', hue_list(id(3+response)));
         
         %% 実験が半分経過
         if i == round((trial.session+trial.trash)/2)
