@@ -35,9 +35,6 @@ function img_modified = renderXYZ_to_luminance(img_original, lum_min, lum_max)
     b = lum_min;
     lum = a .* lum + b;
     
-    % 最大輝度をかけて定義通りのXYZにする
-    %lum = lum .* lum_max;
-    
     % 最低輝度の確認
     %{
     lum_min_map = lum > lum_min; % ディスプレイの最低輝度以下の部分を0にしたマップ

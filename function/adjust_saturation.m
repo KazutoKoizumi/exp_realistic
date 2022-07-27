@@ -75,7 +75,7 @@ function img_modified = adjust_saturation(img, lum_threshold)
                         fprintf('警告：物体内の高輝度領域で色域外の点があります\n\n');
                     else
                         % オブジェクト外で色域外の場合、周囲のピクセルに合わせる
-                        if i == 1 && j == 1 % 左上
+                        if i == 1 % 左上
                             img_uvl(i,j,1) = img_uvl(i+1,j,1);
                             img_uvl(i,j,2) = img_uvl(i+1,j,2);
                         elseif i == iy && j == 1 % 左下
@@ -86,6 +86,7 @@ function img_modified = adjust_saturation(img, lum_threshold)
                             img_uvl(i,j,2) = img_uvl(i-1,j,2);
                         end
                     end
+                    a = 1
                     
                 end
                     

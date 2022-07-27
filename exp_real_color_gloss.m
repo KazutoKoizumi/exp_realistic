@@ -1,4 +1,4 @@
-% レンダリング結果そのままの色の刺激を使用した光沢感測定実験
+%% レンダリング結果そのままの色の刺激を使用した光沢感測定実験
 clear all;
 
 % 日時、被験者、セッション数の取得
@@ -12,7 +12,6 @@ exp_record = sprintf('../data/exp_realistic/%s/record_%s.txt', sn,sn);
 
 % データ保存用のディレクトリ作成
 mkdir(pass.data);
-mkdir(strcat(pass.data,'/session',num2str(session_num)));
 
 AssertOpenGL;
 ListenChar(2);
@@ -36,7 +35,7 @@ wp.d65_XYZ = whitepoint('D65')';
 wp.d65_uvl =  XYZTouvY(wp.d65_XYZ); % uvlと記載のところは基本的にu'v'色度 
 
 % 実験画面の背景色の設定 (D65色度、要確認)
-bg.lum = 2;
+bg.lum = 5; % 背景輝度
 bg.uvl = [wp.d65_uvl(1), wp.d65_uvl(2), bg.lum]';
 bg.XYZ = uvYToXYZ(bg.uvl);
 bg.color = round(conv_XYZ2RGB(bg.XYZ));
@@ -79,8 +78,8 @@ varNames = {'material','light','rough','hue1','hue2','win','responseTime','left_
 if session_num == 1
     % 呈示順、結果保存テーブル、セッションの記録を作る
     result.data = table('Size',[trial.all,size(varTypes,2)],'VariableTypes',varTypes,'VariableNames',varNames);
-    result.order(1:trial.num_pair) = randperm(trial.num_pair);
-    result.order(trial.num_pair+1:trial.all) = randperm(trial.num_pair);
+    result.order(1:trial.num_pair) = randperm(trial.num_pair); % これが終了した時点で被験者は各刺激対に対して1回応答をしたことになる
+    result.order(trial.num_pair+1:trial.all) = randperm(trial.num_pair); % 2回目の応答の呈示順（応答回数が3回以上になる場合は要修正）
     result.('session1') = table('Size',[trial.session,size(varTypes,2)],'VariableTypes',varTypes,'VariableNames',varNames);
 else
     % 読み込む
@@ -110,15 +109,14 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
     [mx,my] = RectCenter(winRect);
     
     %% 刺激背景画像読み込み
-    %% 要確認
     load('../stimuli/back/back_stimuli.mat');
-    [sti_image.y,sti_image.x,sti_image.z] = size(back_stimuli(:,:,:,1));
+    [sti_image.y,sti_image.x,sti_image.z] = size(back_stimuli(:,:,:,1,1,1));
     
     %% 実験パラメータ設定
     % 時間関連
-    exp_time.show_stimuli = 1.0; % 刺激の呈示時間[s]
-    exp_time.before = 0.5; % 呈示前の時間[s]
-    exp_time.interval = 0.5; % 試行間のインターバルの時間[s]
+    exp_time.show_stimuli = 0.001; % 刺激の呈示時間[s]
+    exp_time.before = 0; % 呈示前の時間[s]
+    exp_time.interval = 0; % 試行間のインターバルの時間[s]
     
     % 刺激サイズ関連
     view_distance = 80; % 視距離 (cm)
@@ -195,8 +193,8 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         
         %% 刺激呈示前に背景のみ呈示
         % 背景刺激作成
-        sti_image.tex_back_left = Screen('MakeTexture', winPtr,back_stimuli(:,:,:,id(2)));
-        sti_image.tex_back_right = Screen('MakeTexture',winPtr,back_stimuli(:,:,:,id(2)));
+        sti_image.tex_back_left = Screen('MakeTexture', winPtr,back_stimuli(:,:,:,id(1),id(2),id(3)));
+        sti_image.tex_back_right = Screen('MakeTexture',winPtr,back_stimuli(:,:,:,id(1),id(2),id(3)));
         Screen('DrawTexture', winPtr, sti_image.tex_back_left, [], position.left);
         Screen('DrawTexture', winPtr, sti_image.tex_back_right, [], position.right);
         exp_time.flip = Screen('Flip', winPtr);
@@ -252,7 +250,14 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         %% 応答データを記録
         if i > trial.trash
             result.(strcat('session',num2str(session_num)))(i-trial.trash,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
-            result.data(trial.idx_num,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
+            
+            % 全体の試行番号がtrial.num_pairを超えていたら同じ刺激対に対しての2回目の応答
+            if n <= trial.num_pair % 1回目
+                id_result = trial.idx_num;
+            else % 2回目
+                id_result = trial.idx_num + trial.num_pair; 
+            end
+            result.data(id_result,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
         end
         
         % 応答表示

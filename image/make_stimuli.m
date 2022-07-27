@@ -42,9 +42,7 @@ for i = 1:2 % material
             
             for l = 1:hue_num 
                 pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
-                %mkdir(strcat(pass.object,'color'));
-                %mkdir(strcat(pass.object,'gray'));
-
+                
                 % レンダリング画像読み込み
                 load(strcat(pass.object,object.shape(1),'_',hue_name(l),'.mat'));
                 %{

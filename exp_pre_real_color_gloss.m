@@ -13,7 +13,6 @@ exp_record = sprintf('../data/exp_realistic/pre/%s/record_%s.txt', sn,sn);
 
 % データ保存用のディレクトリ作成
 mkdir(pass.data);
-mkdir(strcat(pass.data,'/session',num2str(session_num)));
 
 AssertOpenGL;
 ListenChar(2);
@@ -37,7 +36,7 @@ wp.d65_XYZ = whitepoint('D65')';
 wp.d65_uvl =  XYZTouvY(wp.d65_XYZ); % uvlと記載のところは基本的にu'v'色度 
 
 % 実験画面の背景色の設定 (D65色度、要確認)
-bg.lum = 2;
+bg.lum = 5; % 背景輝度
 bg.uvl = [wp.d65_uvl(1), wp.d65_uvl(2), bg.lum]';
 bg.XYZ = uvYToXYZ(bg.uvl);
 bg.color = round(conv_XYZ2RGB(bg.XYZ));
@@ -116,7 +115,7 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
     
     %% 刺激背景画像読み込み
     load('../stimuli/back/back_stimuli.mat');
-    [sti_image.y,sti_image.x,sti_image.z] = size(back_stimuli(:,:,:,1));
+    [sti_image.y,sti_image.x,sti_image.z] = size(back_stimuli(:,:,:,1,1,1));
     
     %% 実験パラメータ設定
     % 時間関連
@@ -199,8 +198,8 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         
         %% 刺激呈示前に背景のみ呈示
         % 背景刺激作成
-        sti_image.tex_back_left = Screen('MakeTexture', winPtr,back_stimuli(:,:,:,id(2)));
-        sti_image.tex_back_right = Screen('MakeTexture',winPtr,back_stimuli(:,:,:,id(2)));
+        sti_image.tex_back_left = Screen('MakeTexture', winPtr,back_stimuli(:,:,:,id(1),id(2),id(3)));
+        sti_image.tex_back_right = Screen('MakeTexture',winPtr,back_stimuli(:,:,:,id(1),id(2),id(3)));
         Screen('DrawTexture', winPtr, sti_image.tex_back_left, [], position.left);
         Screen('DrawTexture', winPtr, sti_image.tex_back_right, [], position.right);
         exp_time.flip = Screen('Flip', winPtr);
@@ -216,7 +215,7 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         % capture
         %sti_image.capture = Screen('GetImage',winPtr);
         
-        %{
+        
         % 1秒後に刺激を消す
         Screen('FillRect', winPtr, bg.color);
         exp_time.flip = Screen('Flip', winPtr, exp_time.flip+exp_time.show_stimuli);
@@ -247,10 +246,12 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         end
         exp_time.response = datetime;
         
+        %{
         % 応答したら刺激を消す
         Screen('FillRect', winPtr, bg.color);
         exp_time.flip = Screen('Flip', winPtr);
         Screen('Close', [sti_image.tex_left, sti_image.tex_right]);
+        %}
         
         %% 中断処理
         if flag == 3
@@ -263,7 +264,14 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
         %% 応答データを記録
         if i > trial.trash
             result.(strcat('session',num2str(session_num)))(i-trial.trash,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
-            result.data(trial.idx_num,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
+            
+            % 全体の試行番号がtrial.num_pairを超えていたら同じ刺激対に対しての2回目の応答
+            if n <= trial.num_pair % 1回目
+                id_result = trial.idx_num;
+            else %  2回目
+                id_result = trial.idx_num + trial.num_pair; 
+            end
+            result.data(id_result,:) = {object.material(id(1)),object.light(id(2)),object.rough_v(id(3)),hue_list(id(4)),hue_list(id(5)),hue_list(id(3+response)),exp_time.response,select_LR};
         end
         
         % 応答表示
