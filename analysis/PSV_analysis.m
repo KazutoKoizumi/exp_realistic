@@ -8,19 +8,24 @@
 exp = 'exp_realistic';
 sn = input('Sbuject Name?: ', 's');
 
-mkdir(strcat('../../analysis_result/',exp,'/',sn));
+N = 2; % 被験者数
+num_compair = 2; % 1種の刺激対に対する1人あたりの応答回数
 
-%% パラメータ
+mkdir(strcat('../../analysis_result/',exp,'/pre/',sn));
+%mkdir(strcat('../../analysis_result/',exp,'/',sn));
+
+% パラメータ
 flag_par = 3;
-object = object_paramater(flag_par);
+object = object_paramater(flag_par); 
 
 %% 勝敗表作成
-standings = make_standings_realistic(sn);
-save(strcat('../../data/',exp,'/',sn,'/standings'),'standings');
+standings = make_standings_realistic(sn, num_compair);
+save(strcat('../../data/',exp,'/pre/',sn,'/standings'),'standings');
+%save(strcat('../../data/',exp,'/',sn,'/standings'),'standings');
 
 %% ここから
 %% 選好尺度値を求める
-tnum = 4; % 同じペアの比較数
+tnum = N * num_compair; % 同じペアの比較数
 [psv,psv_CI,BS_sample] = preference_scale_value(standings,object_p.hue_num,object_p.all_num,tnum);
 save(strcat('../../analysis_result/',exp,'/',sn,'/psv'),'psv');
 save(strcat('../../analysis_result/',exp,'/',sn,'/psv_CI'),'psv_CI');

@@ -3,12 +3,13 @@
 % Input
 %   img_color : 元画像, XYZ値
 %   mask : 物体部分のマスク画像
+%   flag_light : 照明条件のフラグ、1:面光源, 2:環境照明
 
 % Output
 %   img_gray : 物体部分を無彩色にした画像
 %   img_gray_back : 背景のみ無彩色にした画像
 
-function img_gray = colorize_achromatic(img_color, mask)
+function img_gray = colorize_achromatic(img_color, mask, flag_light)
     
     cx2u = makecform('xyz2upvpl');
     cu2x = makecform('upvpl2xyz');
@@ -28,7 +29,13 @@ function img_gray = colorize_achromatic(img_color, mask)
     img_color_object_uvl = img_color_uvl .* mask; % 物体部分のみの有彩色画像
     img_color_back_uvl = img_color_uvl .* ~mask; % 背景部分のみの有彩色画像
     
-    img_gray = img_gray_object_uvl + img_color_back_uvl;
+    if flag_light == 1 % 物体と背景ともに無彩色
+        img_gray = img_gray_object_uvl + img_gray_back_uvl;
+    elseif flag_light == 2 % 物体のみ無彩色
+        img_gray = img_gray_object_uvl + img_color_back_uvl;
+    end
+    
+    %img_gray = img_gray_object_uvl + img_color_back_uvl;
     
     %img_gray = applycform(img_gray, cu2x);
     img_gray = tnt.three_channel_convert([], img_gray, @(c,d) uvYToXYZ(d));

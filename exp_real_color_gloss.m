@@ -114,9 +114,9 @@ order_trash = randi([1,trial.num_pair],1,trial.trash);
     
     %% 実験パラメータ設定
     % 時間関連
-    exp_time.show_stimuli = 0.001; % 刺激の呈示時間[s]
-    exp_time.before = 0; % 呈示前の時間[s]
-    exp_time.interval = 0; % 試行間のインターバルの時間[s]
+    exp_time.show_stimuli = 1.0; % 刺激の呈示時間[s]
+    exp_time.before = 0.5; % 呈示前の時間[s]
+    exp_time.interval = 0.5; % 試行間のインターバルの時間[s]
     
     % 刺激サイズ関連
     view_distance = 80; % 視距離 (cm)

@@ -65,7 +65,7 @@ for i = 1:2 % material
 
                 %% 無彩色化
                 load('../../mat/mask/bunny_mask.mat');
-                img_gray = colorize_achromatic(img_modified, mask);
+                img_gray = colorize_achromatic(img_modified, mask, j);
                 
                 %% 後処理1
                 % 色相をまとめる
