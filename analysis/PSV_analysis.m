@@ -11,8 +11,8 @@ sn = input('Sbuject Name?: ', 's');
 N = 2; % 被験者数
 num_compair = 2; % 1種の刺激対に対する1人あたりの応答回数
 
-mkdir(strcat('../../analysis_result/',exp,'/pre/',sn));
-%mkdir(strcat('../../analysis_result/',exp,'/',sn));
+%mkdir(strcat('../../analysis_result/',exp,'/pre/',sn)); % 予備実験
+mkdir(strcat('../../analysis_result/',exp,'/',sn));
 
 % パラメータ
 flag_par = 3;
@@ -23,7 +23,6 @@ standings = make_standings_realistic(sn, num_compair);
 save(strcat('../../data/',exp,'/pre/',sn,'/standings'),'standings');
 %save(strcat('../../data/',exp,'/',sn,'/standings'),'standings');
 
-%% ここから
 %% 選好尺度値を求める
 % プラスチックと金属で比較する刺激数が異なることに注意
 tnum = N * num_compair; % 同じペアの比較数
@@ -49,8 +48,10 @@ save(strcat('../../analysis_result/',exp,'/',sn,'/psv'),'psv');
 save(strcat('../../analysis_result/',exp,'/',sn,'/psv_CI'),'psv_CI');
 save(strcat('../../analysis_result/',exp,'/',sn,'/BS_sample'),'BS_sample');
 
+
+%% ここから
 %% 有意差の有無の判定
-[sig_diff,sig_diff_CGeffect] = significant_difference(BS_sample,object_p.hue_num,flag_par);
+[sig_diff,sig_diff_CGeffect] = significant_difference(BS_sample,object.hue_num,flag_par);
 save(strcat('../../analysis_result/',exp,'/',sn,'/sig_diff'),'sig_diff');
 save(strcat('../../analysis_result/',exp,'/',sn,'/sig_diff_CGeffect'),'sig_diff_CGeffect');
 

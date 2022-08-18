@@ -88,7 +88,6 @@ function [psv,psv_CI,BS_sample] = preference_scale_value_realistic(standings,num
             out_of_num = standings.out_of_num(:,:,j,k);
             num_greater = standings.num_greater(:,:,j,k);
 
-            %% ここから
             %% step1. Analysis to estimate sensation magnitude
             % Analysis 1: Thurston's case V model based on z-score�itypically the results are slightly distorted�j
             estimated_psv = TNT_FCN_PCanalysis_Thurston(mtx, 0.005);

@@ -12,7 +12,8 @@
 
 function standings = make_standings_realistic(sn,num_compair)
     if strcmp(sn,"all")
-        sn_list = ["pre_koizumi", "pre_kosone"]; 
+        % sn_list = ["pre_koizumi", "pre_kosone"]; % 予備実験
+        sn_list = ["son", "morishita"];
     else
         sn_list = string(sn);
     end
@@ -38,15 +39,17 @@ function standings = make_standings_realistic(sn,num_compair)
         mtx_tmp = zeros(num_sti, num_sti, object.light_num, object.rough_num); % 3:照明数, 4:粗さ数
         out_of_num_tmp = mtx_tmp;
         num_greater_tmp = mtx_tmp;
-
-        for j = 1:1 % light
-            for k = 2:2 % roughness
+        
+        count = 1;
+        for j = 1:2 % light
+            for k = 1:3 % roughness
 
                 for p = 1:num_comb
                     n_tmp = n_tmp+1;
 
                     for s = 1:N % 被験者数
-                        load(strcat('../../data/',exp,'/pre/',sn_list(s),'/result.mat'));
+                        %load(strcat('../../data/',exp,'/pre/',sn_list(s),'/result.mat'));
+                        load(strcat('../../data/',exp,'/',sn_list(s),'/result.mat'));
                         data = result.data;
 
                         for repeat_comp = 1:num_compair
@@ -68,6 +71,7 @@ function standings = make_standings_realistic(sn,num_compair)
                     end
 
                 end
+                
 
             end
         end
