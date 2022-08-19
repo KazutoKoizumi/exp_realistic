@@ -22,6 +22,8 @@ function [hue_map, hue_list] = get_hue(img, mask, wp)
     % 色相計算
     [hue_map, rho] = cart2pol(img_uvl(:,:,1)- wp_uvl(1), img_uvl(:,:,2) - wp_uvl(2));
     hue_map = hue_map .* mask;
+    nan_loc = isnan(hue_map);
+    hue_map(nan_loc) = 0;
     
     hue_list = hue_map(logical(mask));
     

@@ -3,7 +3,8 @@
 
 % Input
 %   standings : 実験結果からまとめた勝敗表の構造体
-%   num_sti : 組み合わせの刺激の数
+%   num_sti : ペアを作るための元の刺激の数
+%   num_param : 照明条件や粗さの条件の組み合わせの数
 %   tnum : 同じペアの比較数（被験者合計）
 %
 % Output
@@ -29,7 +30,10 @@ function [psv,psv_CI,BS_sample] = preference_scale_value_realistic(standings,num
     fprintf('   [1] Customized fminsearch in MLDS method\n');
     fprintf('   [2] Normal fminsearch\n');
     fprintf('   [3] fmincon for constrained parameter range (MATLAB only)\n');
-    method = input('Please enter 1, 2, or 3 (default: 3):   ');
+    %method = input('Please enter 1, 2, or 3 (default: 3):   ');
+    method = 3;
+    fprintf('method = %d\n', method);
+    
     
     % make ground truth: psychological sensation magnitude such as 'glossiness'
     GroundTruth = rand(1,num_sti).*6-3; % range of Ground Truth of sensation magnitude
@@ -79,8 +83,8 @@ function [psv,psv_CI,BS_sample] = preference_scale_value_realistic(standings,num
     %% analysis
     progress = 0;
     
-    for j = 1:1 %object.light_num
-        for k = 2:2 %object.rough_num
+    for j = 1:object.light_num
+        for k = 1:object.rough_num
             %fprintf('%d / %d \n\n', i,num_param);
             
             %% experiment result

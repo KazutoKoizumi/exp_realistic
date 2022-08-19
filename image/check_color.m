@@ -12,6 +12,8 @@ wp_uvl = tnt.three_channel_convert([], wp_xyz, @(c,d) XYZTouvY(d));
 
 count = 0;
 
+hue_mean = cell(1,2);
+
 for i = 1:2 % material
     
     if i == 1
@@ -21,6 +23,8 @@ for i = 1:2 % material
         hue_name = object.hue_metal;
         hue_num = object.hue_metal_num;
     end
+    
+    hue_mean_tmp = zeros(hue_num, object.light_num, object.rough_num);
     
     for j = 1:2 % light
         for k = 1:3 % roughness        
@@ -52,6 +56,8 @@ for i = 1:2 % material
                 hue_map = hue_map + standardizeMissing(mask,0);
                 hue_map_deg = rad2deg(hue_map);
                 hue_list_deg = rad2deg(hue_list);
+                % 平均色相
+                hue_mean_tmp(h,j,k) = mean(hue_list_deg);
 
                 % 最大彩度の探索
                 tmp = max(sat_map, [], 'all');
@@ -62,6 +68,7 @@ for i = 1:2 % material
                     sat_max = tmp;
                 end
                 
+                %{
                 %% プロット
                 f = figure;
                 
@@ -129,16 +136,24 @@ for i = 1:2 % material
                 file_name = strcat('../../image/stimuli_color_information/',fig_name);
                 saveas(gcf, file_name);
                 close;
+                %}
                 
                 fprintf('hue finish : %d/%d\n\n', h, hue_num);
             end
+            
+            clear stimuli_xyz stimuli;
             
             count = count+1;
             fprintf('material:%s,  light:%s,  roughness:%s\n', object.material(i), object.light(j), object.rough(k));
             fprintf('finish : %d/%d\n\n', count, object.all_num);
         end
     end
+    
+    hue_mean{i} = hue_mean_tmp;
+    
 end
+
+save('../../mat/stimuli_color/hue_mean.mat', 'hue_mean');
 
 %% 実験1の刺激に対する設定
 wp_xyz_exp1 = [19.3151, 20.0000, 30.5479];

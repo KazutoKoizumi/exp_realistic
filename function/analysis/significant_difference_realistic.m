@@ -1,74 +1,47 @@
 % 選考尺度値の有意差の有無をブートストラップサンプルをもとに検定する 実験3用
+% Holm法で有意水準を補正
 
-function [sig_diff,sig_diff_CGeffect] = significant_difference_realistic(BS_sample,num_sti,flag_par)
+% Input
+%   BS_sample : psvのブートストラップサンプル, (10000*比較色相数*照明*粗さ)
+%   num_sti : 比較する刺激条件の数
+
+function [p, sig_diff] = significant_difference_realistic(BS_sample,num_sti,flag_par)
     B = 10000; %ブートストラップサンプル数
-    %alpha = 5/8; % 有意水準 (片側検定)、ボンフェローニ補正
-    %bonferroni_alpha = 5/8; % ボンフェローニ補正、無彩色との比較
-    ubi = round(B*(100-alpha)/100);
-    lbi = round(B*alpha/100);
     
     object = object_paramater(flag_par);
     color_pair = nchoosek(1:num_sti,2);
-    idx = make_index(flag_par);
     
-    % 結果記録用のテーブル
-    varTypes = {'string','string','double','double','string','string','string','int8'};
-    varNames = {'shape','light','diffuse','roughness','method','hue1','hue2','significantDifference'};
-    sig_diff = table('Size',[object.all_num*(object.hue_num-1),8],'VariableTypes',varTypes,'VariableNames',varNames); % grayとの有意差のみ
+    % 結果記録用のマトリクス
+    p = zeros(size(color_pair,1), 1, object.light_num, object.rough_num);
+    sig_diff = p;
     
-    CGeffect_BS_sample = zeros(B,object.all_num);
-    
-    count = 1;
-    for i = 1:object.all_num
-        p = zeros(8,1);
-        for n = 1:num_sti-1 % grayとの有意差のみ
-            sampleDiff = BS_sample(:,color_pair(n,1),i) - BS_sample(:,color_pair(n,2),i); % "gray-有彩色"
+    for j = 1:object.light_num % 照明
+        for k = 1:object.rough_num % 粗さ
             
-            sdata = sort(sampleDiff);
-            upLim = sdata(ubi);
-            %lowLim = sdata(lbi);
-            
-            %{
-            % 両側検定
-            if upLim*lowLim > 0 % 有意差あり
-                sigDiff = 1
-            else % 有意差なし
-                sigDiff = 0
+            for n = 1:size(color_pair,1)
+                sample_diff = BS_sample(:,color_pair(n,1),j,k) - BS_sample(:,color_pair(n,2),j,k);
+                sdata = sort(sample_diff);
+                
+                % p値
+                num = min([nnz(sdata<=0), nnz(sdata>=0)]);
+                p(n,1,j,k) = num/B;
             end
-            %}
+            clear n;
             
-            % 片側検定
-            if upLim < 0 % "gray-有彩色"が0より小さいか
-                sigDiff = 1;
-            else
-                sigDiff = 0;
+            % Holm法で有意水準を補正して検定
+            [p_sort, id_sort] = sort(p(:,:,j,k));
+            for n = 1:size(color_pair,1)
+                alpha_holm = 0.025/(size(color_pair,1)+1-n);
+                
+                if p_sort(n) < alpha_holm
+                    sig_diff(id_sort(n),:,j,k) = 1;
+                else
+                    sig_diff(id_sort(n),:,j,k) = 0;
+                    break;
+                end
             end
             
-            % ｐ値を求める
-            if n <= 8
-                num = nnz(sdata>=0);
-                p(n) = num/B;
-            end
-            
-            sig_diff(count,:) = {object.shape(idx(i,1)),object.light(idx(i,2)),object.diffuse_v(idx(i,3)),object.rough_v(idx(i,4)),object.method(idx(i,5)),object.hue(color_pair(n,1)),object.hue(color_pair(n,2)),sigDiff};
-            count = count + 1;
         end
+    end
         
-        % 効果量を求める（ブートストラップサンプル10000個分）
-        BS_sample_color_mean = mean(BS_sample(:,2:9,i),2);
-        CGeffect_BS_sample(:,i) = BS_sample_color_mean - BS_sample(:,1,i);
-                    
-        fprintf('analysis progress : %d / %d\n\n', i, object.all_num);
-    end
-    
-    % 効果量が有意に正か検定
-    CGeffect_BS_sample_mean = mean(CGeffect_BS_sample,2);
-    sdata = sort(CGeffect_BS_sample_mean);
-    lowLim = sdata(B*5/100);
-    if lowLim > 0
-        sig_diff_CGeffect = 1;
-    else
-        sig_diff_CGeffect = 0;
-    end
-    
 end

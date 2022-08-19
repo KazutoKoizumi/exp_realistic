@@ -5,12 +5,16 @@
 % 有意差の有無の検定
 % プロット
 
+clear all;
+
 exp = 'exp_realistic';
 sn = input('Sbuject Name?: ', 's');
+sn_list = ["son", "morishita", "inoue", "horiuchi"];
 
-N = 2; % 被験者数
+N = size(sn_list,2); % 被験者数
 num_compair = 2; % 1種の刺激対に対する1人あたりの応答回数
 
+mkdir(strcat('../../data/',exp,'/',sn));
 %mkdir(strcat('../../analysis_result/',exp,'/pre/',sn)); % 予備実験
 mkdir(strcat('../../analysis_result/',exp,'/',sn));
 
@@ -19,9 +23,8 @@ flag_par = 3;
 object = object_paramater(flag_par); 
 
 %% 勝敗表作成
-standings = make_standings_realistic(sn, num_compair);
-save(strcat('../../data/',exp,'/pre/',sn,'/standings'),'standings');
-%save(strcat('../../data/',exp,'/',sn,'/standings'),'standings');
+standings = make_standings_realistic(sn, num_compair, sn_list);
+save(strcat('../../data/',exp,'/',sn,'/standings'),'standings');
 
 %% 選好尺度値を求める
 % プラスチックと金属で比較する刺激数が異なることに注意
@@ -48,12 +51,23 @@ save(strcat('../../analysis_result/',exp,'/',sn,'/psv'),'psv');
 save(strcat('../../analysis_result/',exp,'/',sn,'/psv_CI'),'psv_CI');
 save(strcat('../../analysis_result/',exp,'/',sn,'/BS_sample'),'BS_sample');
 
-
-%% ここから
 %% 有意差の有無の判定
-[sig_diff,sig_diff_CGeffect] = significant_difference(BS_sample,object.hue_num,flag_par);
+p = cell(1,2);
+sig_diff = cell(1,2);
+for i = 1:object.material_num
+    if i == 1
+        num_sti = numel(object.hue_pair_list);
+    elseif i == 2
+        num_sti = numel(object.hue_metal_pair_list);
+    end
+    
+    [p_tmp, sig_diff_tmp] = significant_difference_realistic(BS_sample{i}, num_sti, flag_par);
+    
+    p{i} = p_tmp;
+    sig_diff{i} = sig_diff_tmp;
+end
+save(strcat('../../analysis_result/',exp,'/',sn,'/p'),'p');
 save(strcat('../../analysis_result/',exp,'/',sn,'/sig_diff'),'sig_diff');
-save(strcat('../../analysis_result/',exp,'/',sn,'/sig_diff_CGeffect'),'sig_diff_CGeffect');
 
 %% プロット
 load(strcat('../../analysis_result/',exp,'/',sn,'/psv_CI.mat'));
@@ -68,5 +82,10 @@ for i = 1:2
         hue_name_label = ["5R","75YR","10Y","25G","5BG","75B","10PB","25RP","Cu","Au","5R achromatic","75YR achromatic","10Y achromatic","25G achromatic","5BG achromatic","75B achromatic","10PB achromatic","25RP achromatic","Cu achromatic","Au achromatic"];
     end
     f = plot_psv_realistic(psv_CI{i},sig_diff,exp,sn,hue_name, hue_name_label);
+    
+    f.WindowState = 'maximized';
+    graphName = strcat('psv_',object.material(i),'.png');
+    fileName = strcat('../../analysis_result/',exp,'/',sn,'/graph/',graphName);
+    saveas(gcf, fileName);
 
 end

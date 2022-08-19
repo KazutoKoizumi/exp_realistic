@@ -3,6 +3,7 @@
 % Input
 %   sn : 被験者名
 %   num_compair : 1種の刺激対に対する応答回数
+%   sn_list : 被験者の名前リスト
 %
 % Output
 %   mtx : 勝率
@@ -10,11 +11,8 @@
 %   num_greater : 勝数
 
 
-function standings = make_standings_realistic(sn,num_compair)
-    if strcmp(sn,"all")
-        % sn_list = ["pre_koizumi", "pre_kosone"]; % 予備実験
-        sn_list = ["son", "morishita"];
-    else
+function standings = make_standings_realistic(sn,num_compair,sn_list)
+    if ~strcmp(sn,"all")
         sn_list = string(sn);
     end
     N = size(sn_list,2);
