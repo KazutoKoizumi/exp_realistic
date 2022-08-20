@@ -5,7 +5,8 @@ clear all;
 flag_par = 3;
 object = object_paramater(flag_par);
 
-sn = 'pre/all';
+exp = 'exp_realistic';
+sn = 'all';
 
 load(strcat('../../analysis_result/exp_realistic/',sn,'/psv.mat'));
 load(strcat('../../analysis_result/exp_realistic/',sn,'/psv_CI.mat'));
@@ -27,8 +28,8 @@ for i = 1:object.material_num
     
     GEindex_tmp_material = zeros(1,num_chromatic, object.light_num, object.rough_num);
     BS_GEindex_tmp_material = zeros(B,num_chromatic, object.light_num, object.rough_num);
-    for j = 1:1 %object.light_num
-        for k = 2:2 %object.rough_num
+    for j = 1:object.light_num
+        for k = 1:object.rough_num
             
             psv_tmp = psv{i}(:,:,j,k);
             GEindex_tmp = psv_tmp(1,1:num_chromatic) - psv_tmp(1,num_chromatic+1:end);
@@ -58,8 +59,8 @@ for i = 1:object.material_num
     end
     
     CI95_GEindex_tmp = zeros(2, num_chromatic, object.light_num, object.rough_num);
-    for j = 1:1 %object.light_num
-        for k = 1:2 %object.rough_num
+    for j = 1:object.light_num
+        for k = 1:object.rough_num
             num_chromatic = size(BS_GEindex{i},2);
             
             for hue = 1:num_chromatic
@@ -75,17 +76,24 @@ for i = 1:object.material_num
 end
 
 %% プロット
+% 色相名を角度に
+load('../../mat/stimuli_color/hue_mean_360.mat');
+
 for i = 1:object.material_num
     
+    %{
     if i == 1
         hue_name = object.hue;
     elseif i == 2
         hue_name = object.hue_metal;
     end
+    %}
     
-    figure;
-    for j = 1:1 %object.light_num
-        for k = 2:2 %object.rough_num
+    for j = 1:object.light_num
+        for k = 1:object.rough_num
+            figure;
+            
+            hue_name = string(round(hue_mean_360{i}(:,j,k)))';
             
             x = 1:size(GEindex{i}, 2);
             GEindex_y = GEindex{i}(:,:,j,k);
@@ -98,6 +106,13 @@ for i = 1:object.material_num
             xticklabels(hue_name);
             xtickangle(45);
             xlim([0 x(end)+1]);
+            
+            xlabel('Color direction (degree)');
+            ylabel('GE index');
+            
+            graphName = strcat('GEindex_',object.material(i),'_',object.light(j),'_',object.rough(k),'.png');
+            fileName = strcat('../../analysis_result/',exp,'/',sn,'/graph/GEindex/',graphName);
+            saveas(gcf, fileName);
         end
     end
     

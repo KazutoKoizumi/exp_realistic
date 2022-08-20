@@ -12,7 +12,7 @@
 %   sn : 被験者名
 %
 
-function f = plot_psv_realistic(psv_CI,sig_diff,exp,sn,hue_name, hue_name_label)
+function f = plot_psv_realistic(psv_CI,sig_diff,exp,sn,hue_name, hue_name_list)
     
     flag_par = 3;
     object = object_paramater(flag_par);    
@@ -65,11 +65,16 @@ function f = plot_psv_realistic(psv_CI,sig_diff,exp,sn,hue_name, hue_name_label)
         t_txt = object.light(j);
         title(t_txt, 'FontSize', sz.sgt);
         
+        % 色相名
+        hue_name_tmp = round(mean(hue_name_list(:,j,:), 3));
+        hue_name_label = string(hue_name_tmp)';
+        hue_name_label = cat(2, hue_name_label, append(hue_name_label, ' achromatic'));
+        
         % axis
         xticks(color_num(2,:));
         xticklabels(hue_name_label);
         %xticklabels({'gray', '0', '45', '90', '135', '180', '225', '270', '315'})
-        xlabel('Color','FontSize',sz.label);
+        xlabel('Color direction (degree)','FontSize',sz.label);
         xtickangle(45);
         xlim([0 size(psv_CI, 1)+1]);
         ylabel('PSV','FontSize',sz.label);

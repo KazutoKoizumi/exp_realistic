@@ -12,7 +12,9 @@ wp_uvl = tnt.three_channel_convert([], wp_xyz, @(c,d) XYZTouvY(d));
 
 count = 0;
 
+sat_mean = cell(1,2);
 hue_mean = cell(1,2);
+hue_mean_360 = cell(1,2);
 
 for i = 1:2 % material
     
@@ -24,7 +26,9 @@ for i = 1:2 % material
         hue_num = object.hue_metal_num;
     end
     
+    sat_mean_tmp = zeros(hue_num, object.light_num, object.rough_num);
     hue_mean_tmp = zeros(hue_num, object.light_num, object.rough_num);
+    hue_mean_360_tmp = zeros(hue_num, object.light_num, object.rough_num);
     
     for j = 1:2 % light
         for k = 1:3 % roughness        
@@ -48,6 +52,8 @@ for i = 1:2 % material
                 
                 % 彩度取得
                 [sat_map, sat_list] = get_saturation(img, mask, wp_xyz);
+                % 平均彩度
+                sat_mean_tmp(h,j,k) = mean(sat_list);
                 
                 %[lum_map,lum_list,sat_map,sat_list] = plot_relation_lum_sat(img,mask,wp,lum_range,sat_range);
                 
@@ -58,6 +64,11 @@ for i = 1:2 % material
                 hue_list_deg = rad2deg(hue_list);
                 % 平均色相
                 hue_mean_tmp(h,j,k) = mean(hue_list_deg);
+                % 0~360度に変換
+                hue_mean_360_tmp(h,j,k) = hue_mean_tmp(h,j,k);
+                if hue_mean_360_tmp(h,j,k) < 0
+                    hue_mean_360_tmp(h,j,k) = hue_mean_360_tmp(h,j,k) + 360;
+                end
 
                 % 最大彩度の探索
                 tmp = max(sat_map, [], 'all');
@@ -149,11 +160,15 @@ for i = 1:2 % material
         end
     end
     
+    sat_mean{i} = sat_mean_tmp;
     hue_mean{i} = hue_mean_tmp;
+    hue_mean_360{i} = hue_mean_360_tmp;
     
 end
 
+save('../../mat/stimuli_color/sat_mean.mat', 'sat_mean');
 save('../../mat/stimuli_color/hue_mean.mat', 'hue_mean');
+save('../../mat/stimuli_color/hue_mean_360.mat', 'hue_mean_360');
 
 %% 実験1の刺激に対する設定
 wp_xyz_exp1 = [19.3151, 20.0000, 30.5479];
