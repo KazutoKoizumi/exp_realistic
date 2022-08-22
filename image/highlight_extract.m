@@ -35,7 +35,7 @@ for i = 1:object.material_num
                 img = stimuli_xyz(:,:,:,h);
                 
                 % 輝度閾値計算
-                per_threshold = 7;
+                per_threshold = 5;
                 [lum_map, lum_list] = get_luminance(img, mask);
                 srt = sort(lum_list);
                 idx = uint32(numel(srt)*(100-per_threshold)/100);
@@ -54,6 +54,9 @@ for i = 1:object.material_num
             
             count = count + 1;
             fprintf('finish : %d / %d\n\n', count, object.all_num);
+            
+            figure;
+            imagesc(highlight_map_tmp(:,:,1,j,k));
             
         end
     end

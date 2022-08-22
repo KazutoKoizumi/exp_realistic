@@ -35,6 +35,8 @@ function [sat_map, sat_list] = get_saturation(img, mask, wp)
     
     mask_l = logical(mask);
     sat_list = sat_map(mask_l); 
+    
+    sat_list(isnan(sat_list)) = 0;
         
     
 
