@@ -46,6 +46,10 @@ for i = 1:object.material_num
     GEindex{i} = GEindex_tmp_material;
     BS_GEindex{i} = BS_GEindex_tmp_material;
     
+    % 照明・粗さ条件をまとめた平均
+    GEindex_mean_all{i} = mean(GEindex_tmp_material, [3 4]);
+    BS_GEindex_mean_all{i} = mean(BS_GEindex_tmp_material, [3 4]);
+    
 end
 
 %% 信頼区間
@@ -66,12 +70,19 @@ for i = 1:object.material_num
             for hue = 1:num_chromatic
                 CI95_tmp = CI95_bootstrap(BS_GEindex{i}(:,hue,j,k));
                 CI95_GEindex_tmp(:,hue,j,k) = CI95_tmp';
+                
             end
             
         end
     end
     
     CI95_GEindex{i} = CI95_GEindex_tmp;
+    
+    % 照明・粗さ条件をまとめた平均
+    for hue = 1:num_chromatic
+        CI95_GEindex_tmp_mean_all(:,hue) = CI95_bootstrap(BS_GEindex_mean_all{i}(:,hue))';
+    end
+    CI95_GEindex_mean_all{i} = CI95_GEindex_tmp_mean_all;
     
 end
 
@@ -89,6 +100,7 @@ for i = 1:object.material_num
     end
     %}
     
+    %{
     for j = 1:object.light_num
         for k = 1:object.rough_num
             figure;
@@ -115,6 +127,26 @@ for i = 1:object.material_num
             saveas(gcf, fileName);
         end
     end
+    %}
+    
+    % 照明・粗さ条件をまとめた平均
+    figure;
+    hue_name = string(round(hue_mean_360{i}(:,1,1)))';
+    x = 1:size(GEindex{i}, 2);
+    GEindex_y = GEindex_mean_all{i};
+    CI95_y = CI95_GEindex_mean_all{i};
+    err = abs(GEindex_y - CI95_y);
+    bar(x, GEindex_y);
+    hold on;
+    errorbar(x, GEindex_y, err(1,:), err(2,:), 'o', 'Color', [0 0 0], 'LineWidth', 1);
+    title('mean');
+    xticks(x);
+    xticklabels(hue_name);
+    xtickangle(45);
+    xlim([0 x(end)+1]);
+    xlabel('Color direction (degree)');
+    ylabel('GE index');
+    hold off;
     
 end
 
