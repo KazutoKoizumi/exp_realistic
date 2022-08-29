@@ -9,7 +9,7 @@ clear all;
 
 exp = 'exp_realistic';
 sn = input('Sbuject Name?: ', 's');
-sn_list = ["son", "morishita", "inoue", "horiuchi"];
+sn_list = ["son", "morishita", "inoue", "horiuchi", "takanashi", "dogu"];
 
 N = size(sn_list,2); % 被験者数
 num_compair = 2; % 1種の刺激対に対する1人あたりの応答回数

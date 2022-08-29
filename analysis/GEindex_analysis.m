@@ -100,7 +100,7 @@ for i = 1:object.material_num
     end
     %}
     
-    %{
+    
     for j = 1:object.light_num
         for k = 1:object.rough_num
             figure;
@@ -129,6 +129,7 @@ for i = 1:object.material_num
     end
     %}
     
+    %{
     % 照明・粗さ条件をまとめた平均
     figure;
     hue_name = string(round(hue_mean_360{i}(:,1,1)))';
@@ -147,6 +148,7 @@ for i = 1:object.material_num
     xlabel('Color direction (degree)');
     ylabel('GE index');
     hold off;
+    %}
     
 end
 
