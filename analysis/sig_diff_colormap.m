@@ -2,6 +2,9 @@
 
 clear all;
 
+exp = 'exp_realistic';
+sn = 'all';
+
 flag_par = 3;
 object = object_paramater(flag_par);
 
@@ -9,20 +12,28 @@ load('../../analysis_result/exp_realistic/all/p.mat');
 load('../../analysis_result/exp_realistic/all/sig_diff.mat');
 
 %%
+load('../../mat/stimuli_color/hue_mean_360.mat');
 
 for i = 1:object.material_num
     
     if i == 1
         num_sti = numel(object.hue_pair_list);
-        hue_name_label = ["5R","75YR","10Y","25G","5BG","75B","10PB","25RP","5R achromatic","75YR achromatic","10Y achromatic","25G achromatic","5BG achromatic","75B achromatic","10PB achromatic","25RP achromatic"];
+        %hue_name_label = ["5R","75YR","10Y","25G","5BG","75B","10PB","25RP","5R achromatic","75YR achromatic","10Y achromatic","25G achromatic","5BG achromatic","75B achromatic","10PB achromatic","25RP achromatic"];
     elseif i == 2
         num_sti = numel(object.hue_metal_pair_list);
-        hue_name_label = ["5R","75YR","10Y","25G","5BG","75B","10PB","25RP","Cu","Au","5R achromatic","75YR achromatic","10Y achromatic","25G achromatic","5BG achromatic","75B achromatic","10PB achromatic","25RP achromatic","Cu achromatic","Au achromatic"];
+        %hue_name_label = ["5R","75YR","10Y","25G","5BG","75B","10PB","25RP","Cu","Au","5R achromatic","75YR achromatic","10Y achromatic","25G achromatic","5BG achromatic","75B achromatic","10PB achromatic","25RP achromatic","Cu achromatic","Au achromatic"];
     end 
     
-    figure;
+    
     for j = 1:object.light_num
         for k = 1:object.rough_num
+            fig = figure;
+            
+            % 色相名
+            hue_name_tmp = round(mean(hue_mean_360{i}(:,j,:), 3));
+            hue_name_label = string(hue_name_tmp)';
+            hue_name_label = cat(2, hue_name_label, append(hue_name_label, ' achromatic'));
+            
             %% p値の整理
             count = 1;
             p_matrix = zeros(num_sti, num_sti);
@@ -81,6 +92,12 @@ for i = 1:object.material_num
             xticklabels(hue_name_label);
             xtickangle(45);
             yticklabels(hue_name_label);
+            
+            fig.WindowState = 'maximized';
+            graph_name = strcat('sig_diff_colormap_', object.material(i), '_', object.light(j), '_', object.rough(k), '.png');
+            file_name = strcat('../../analysis_result/',exp,'/',sn,'/graph/sig_diff_colormap/',graph_name);
+            saveas(gcf, file_name);
+            close;
         end
     end
             
