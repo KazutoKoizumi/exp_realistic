@@ -25,18 +25,26 @@ load('../../analysis_result/exp_realistic/all/GEindex/CI95_GEindex_mod_mean_all.
 
 %% 色相ごとの光沢感変化量の単純な比較
 for i = 1:object.material_num
+    
+    if i == 1
+        m = 2;
+    elseif i == 2
+        m = 1;
+    end
+    
     num_chromatic = 8;
     count = 1;
     for j = 1:object.light_num
         for k = 1:object.rough_num
             
-            idx_method = idx_exp1(i:2:end,:);
+            idx_method = idx_exp1(m:2:end,:);
             
             % 実験1の結果
             id_diff_ref = 1; % 実験1の拡散反射率(1:0.1, 2:0.3, 3:0.5)
-            id_exp1 = find(idx_method(:,1)==1 & idx_method(:,2)==j & idx_method(:,3)==id_diff_ref & idx_method(:,4)==k & idx_method(:,5)==i); 
-            GEindex_exp1 = gloss_diff.all(id_exp1,:,i);
-            GEindex_exp1_method(count,:,i) = GEindex_exp1;
+            id_exp1 = find(idx_method(:,1)==1 & idx_method(:,2)==j & idx_method(:,3)==id_diff_ref & idx_method(:,4)==k & idx_method(:,5)==m); 
+            GEindex_exp1 = gloss_diff.all(id_exp1,:,m);
+            GEindex_exp1_method(count,:,i) = GEindex_exp1; % 1:D条件、2:SD条件 (プラスチック条件と金属条件に順番を対応させる)
+            count = count + 1;
             
             % 実験3の結果
             GEindex_exp3 = GEindex_mod{i}(:,1:8,j,k);
@@ -57,7 +65,7 @@ for i = 1:object.material_num
             errorbar(x2, GEindex_exp3, err(1,:), err(2,:), 'o', 'Color', [0 0 0]);
             
             xticks(x);
-            xticklabels({'achromatic', '0', '45', '90', '135', '180', '225', '270', '315'});
+            xticklabels({'0', '45', '90', '135', '180', '225', '270', '315'});
             xtickangle(45);
             
             legend({'exp1', 'exp3'}, 'Location', 'northeastoutside');
@@ -79,12 +87,12 @@ for i = 1:object.material_num
     
     err = abs(GEindex_mod_mean_all{i}(1:8) - CI95_GEindex_mod_mean_all{i}(:,1:8));
     
-    bar(x1, GEindex_exp1_method(:,:,i), bar_width);
+    bar(x1, mean(GEindex_exp1_method(:,:,i),1), bar_width); % 順番を変更済み
     bar(x2, GEindex_mod_mean_all{i}(1:8), bar_width);
     errorbar(x2, GEindex_mod_mean_all{i}(1:8), err(1,:), err(2,:), 'o', 'Color', [0 0 0]);
     
     xticks(x);
-    xticklabels({'achromatic', '0', '45', '90', '135', '180', '225', '270', '315'});
+    xticklabels({'0', '45', '90', '135', '180', '225', '270', '315'});
     xtickangle(45);
     
     legend({'exp1', 'exp3'}, 'Location', 'northeastoutside');
@@ -93,6 +101,13 @@ end
 
 %% 相関
 for i = 1:object.material_num
+    
+    if i == 1
+        m = 2;
+    elseif i == 2
+        m = 1;
+    end
+    
     num_chromatic = 8;
     figure;
     hold on;
@@ -100,12 +115,12 @@ for i = 1:object.material_num
     for j = 1:object.light_num
         for k = 1:object.rough_num
             
-            idx_method = idx_exp1(i:2:end,:);
+            idx_method = idx_exp1(m:2:end,:);
             
             % 実験1の結果
             id_diff_ref = 1; % 実験1の拡散反射率(1:0.1, 2:0.3, 3:0.5)
-            id_exp1 = find(idx_method(:,1)==1 & idx_method(:,2)==j & idx_method(:,3)==id_diff_ref & idx_method(:,4)==k & idx_method(:,5)==i); 
-            GEindex_exp1 = gloss_diff.all(id_exp1,:,i);
+            id_exp1 = find(idx_method(:,1)==1 & idx_method(:,2)==j & idx_method(:,3)==id_diff_ref & idx_method(:,4)==k & idx_method(:,5)==m); 
+            GEindex_exp1 = gloss_diff.all(id_exp1,:,m);
             
             % 実験3の結果
             GEindex_exp3 = GEindex_mod{i}(:,1:8,j,k);
