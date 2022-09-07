@@ -11,7 +11,13 @@ exp = 'exp_realistic';
 sn = input('Sbuject Name?: ', 's');
 sn_list = ["son", "morishita", "inoue", "horiuchi", "takanashi", "dogu"];
 
-N = size(sn_list,2); % 被験者数
+%N = size(sn_list,2); % 被験者数
+if strcmp(sn, 'all')
+    N = size(sn_list, 2);
+else
+    N = 1;
+end
+
 num_compair = 2; % 1種の刺激対に対する1人あたりの応答回数
 
 mkdir(strcat('../../data/',exp,'/',sn));

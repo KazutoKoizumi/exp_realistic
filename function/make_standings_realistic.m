@@ -13,7 +13,7 @@
 
 function standings = make_standings_realistic(sn,num_compair,sn_list)
     if ~strcmp(sn,"all")
-        sn_list = string(sn);
+        sn_list = string(sn)
     end
     N = size(sn_list,2);
     exp = 'exp_realistic';
