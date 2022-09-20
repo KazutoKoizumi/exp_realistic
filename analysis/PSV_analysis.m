@@ -92,7 +92,7 @@ for i = 1:2
         %hue_name_label = ["5R","75YR","10Y","25G","5BG","75B","10PB","25RP","Cu","Au","5R achromatic","75YR achromatic","10Y achromatic","25G achromatic","5BG achromatic","75B achromatic","10PB achromatic","25RP achromatic","Cu achromatic","Au achromatic"];
     end
     
-    f = plot_psv_realistic(psv_CI{i},sig_diff,exp,sn,hue_name, hue_mean_360{i});
+    f = plot_psv_realistic(psv_CI{i},hue_name, hue_mean_360{i});
     
     f.WindowState = 'maximized';
     graphName = strcat('psv_',object.material(i),'.png');
