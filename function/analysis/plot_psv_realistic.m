@@ -12,13 +12,14 @@
 function f = plot_psv_realistic(psv_CI,hue_name, hue_deg)
     
     flag_par = 3;
-    object = object_paramater(flag_par);    
+    object = object_paramater(flag_par);
+    material_num = size(psv_CI,1) / 2;
     
     % グラフのパラメータ関係の設定
     graph_color = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
     %color_num = 1:size(psv_CI, 1);
-    color_num = round(hue_deg);
-    color_num = [color_num-0.1; color_num; color_num+0.1];
+    %color_num = round(hue_deg);
+    %color_num = [color_num-0.1; color_num; color_num+0.1];
     
     % max min
     %v_max = max(reshape(max(max(psv_CI)), 1, object_p.all_num));
@@ -45,19 +46,26 @@ function f = plot_psv_realistic(psv_CI,hue_name, hue_deg)
         for k = 1:object.rough_num
                     
             hue_x = round(hue_deg(:,j,k));
+            hue_x_label = hue_x;
+            
+            if hue_x(1) > 180 % 色相インデックスが最初の刺激の平均色相が180~360度のとき調整
+                hue_x(1) = hue_x(1) - 360;
+            end
+            
             hue_x = repmat(hue_x, [2 1]);
+            hue_x_label = repmat(hue_x_label, [2 1]);
             
             psv_y = psv_CI(:,:,j,k);
             
             % 有彩色プロット
             p = 1;
-            data_range = 8*(p-1)+1:8*p;
+            data_range = material_num*(p-1)+1:material_num*p;
             h(k) = errorbar(hue_x(data_range), psv_y(data_range,3), -psv_y(data_range,1), psv_y(data_range,2), '-o', 'Color', graph_color(k,:));
             hold on;
             
             % 無彩色プロット
             p = 2;
-            data_range = 8*(p-1)+1:8*p;
+            data_range = material_num*(p-1)+1:material_num*p;
             h(k) = errorbar(hue_x(data_range), psv_y(data_range,3), -psv_y(data_range,1), psv_y(data_range,2), '--o', 'Color', graph_color(k,:));
             
         end
@@ -67,16 +75,14 @@ function f = plot_psv_realistic(psv_CI,hue_name, hue_deg)
         t_txt = object.light(j);
         title(t_txt, 'FontSize', sz.sgt);
         
-        % 色相名
-        %hue_name_tmp = round(mean(hue_deg(:,j,:), 3));
-        %hue_name_label = string(hue_name_tmp)';
-        hue_name_label = string(hue_x)';
+        % 色相名;
+        hue_name_label = string(hue_x_label)';
         hue_name_label = cat(2, hue_name_label, append(hue_name_label, ' achromatic'));
         
         % axis
-        xticks(round(mean(hue_deg(:,j,:), 3)));
+        round(mean(hue_deg(:,j,:), 3))
+        xticks();
         xticklabels(hue_name_label);
-        %xticklabels({'gray', '0', '45', '90', '135', '180', '225', '270', '315'})
         xlabel('Color direction (degree)','FontSize',sz.label);
         xtickangle(45);
         xlim([0 360]);
