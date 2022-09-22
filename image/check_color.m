@@ -57,13 +57,40 @@ for i = 1:2 % material
                 
                 %[lum_map,lum_list,sat_map,sat_list] = plot_relation_lum_sat(img,mask,wp,lum_range,sat_range);
                 
-                % 色相取得
+                %% 色相取得
+                %{
                 [hue_map, hue_list] = get_hue(img, mask, wp_xyz);
                 hue_map = hue_map + standardizeMissing(mask,0);
                 hue_map_deg = rad2deg(hue_map);
                 hue_list_deg = rad2deg(hue_list);
                 % 平均色相
                 hue_mean_tmp(h,j,k) = mean(hue_list_deg);
+                %}
+                
+                % u'v'の平均色度を求めてから色相を求める
+                img_uvl = tnt.three_channel_convert([], img, @(c,d) XYZTouvY(d));
+                mask_l = logical(mask);
+                for p = 1:3
+                    img_tmp = img_uvl(:,:,p);
+                    img_uvl_list(p,:) = img_tmp(mask_l);
+                end
+                img_uvl_mean = mean(img_uvl_list, 2);
+                [hue_mean_tmp(h,j,k), rho] = cart2pol(img_uvl_mean(1)-wp_uvl(1), img_uvl_mean(2)-wp_uvl(2));
+                hue_mean_tmp(h,j,k) = rad2deg(hue_mean_tmp(h,j,k));
+                
+                %{
+                % XYZの状態で物体の色平均取ってから色相を求める
+                mask_l = logical(mask);
+                for p = 1:3
+                    img_tmp = img(:,:,p);
+                    img_XYZ_list(p,:) = img_tmp(mask_l)';
+                end
+                img_XYZ_mean = mean(img_XYZ_list, 2);
+                img_uvl_mean = XYZTouvY(img_XYZ_mean);
+                [hue_mean_tmp(h,j,k), rho] = cart2pol(img_uvl_mean(1)-wp_uvl(1), img_uvl_mean(2)-wp_uvl(2));
+                hue_mean_tmp(h,j,k) = rad2deg(hue_mean_tmp(h,j,k));
+                %}
+                
                 % 0~360度に変換
                 hue_mean_360_tmp(h,j,k) = hue_mean_tmp(h,j,k);
                 if hue_mean_360_tmp(h,j,k) < 0
@@ -166,9 +193,9 @@ for i = 1:2 % material
     
 end
 
-save('../../mat/stimuli_color/sat_mean.mat', 'sat_mean');
-save('../../mat/stimuli_color/hue_mean.mat', 'hue_mean');
-save('../../mat/stimuli_color/hue_mean_360.mat', 'hue_mean_360');
+%save('../../mat/stimuli_color/sat_mean.mat', 'sat_mean');
+%save('../../mat/stimuli_color/hue_mean.mat', 'hue_mean');
+%save('../../mat/stimuli_color/hue_mean_360.mat', 'hue_mean_360');
 
 %% 実験1の刺激に対する設定
 wp_xyz_exp1 = [19.3151, 20.0000, 30.5479];
