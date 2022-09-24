@@ -90,65 +90,128 @@ end
 % 色相名を角度に
 load('../../mat/stimuli_color/hue_mean_360.mat');
 
+% グラフ設定
+graph_color = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
+sz.sgt = 12;
+sz.lgd = 8; %16;
+
 for i = 1:object.material_num
     
-    %{
-    if i == 1
-        hue_name = object.hue;
-    elseif i == 2
-        hue_name = object.hue_metal;
-    end
-    %}
+    hue_deg = hue_mean_360{i};
     
-    %{
+    %% 全結果
+    f = figure;
     for j = 1:object.light_num
+        subplot(2,1,j);
         for k = 1:object.rough_num
-            figure;
             
-            hue_name = string(round(hue_mean_360{i}(:,j,k)))';
+            hue_x = round(hue_deg(:,j,k));
+            hue_x_label = hue_x;
+            if hue_x(1) > 180
+                hue_x(1) = hue_x(1) - 360;
+            end
             
-            x = 1:size(GEindex{i}, 2);
             GEindex_y = GEindex{i}(:,:,j,k);
             CI95_y = CI95_GEindex{i}(:,:,j,k);
             err = abs(GEindex_y - CI95_y);
             
-            errorbar(x, GEindex_y, err(1,:), err(2,:), '-o');
-            
-            xticks(x);
-            xticklabels(hue_name);
-            xtickangle(45);
-            xlim([0 x(end)+1]);
-            
-            xlabel('Color direction (degree)');
-            ylabel('GE index');
-            
-            graphName = strcat('GEindex_',object.material(i),'_',object.light(j),'_',object.rough(k),'.png');
-            fileName = strcat('../../analysis_result/',exp,'/',sn,'/graph/GEindex/',graphName);
-            saveas(gcf, fileName);
+            hue_num = 8;
+            if i == 1 % プラスチック
+                h(k) = errorbar(hue_x, GEindex_y, err(1,:), err(2,:), '-o', 'Color', graph_color(k,:));
+                hold on;
+                
+            elseif i == 2 % 金属
+                % マンセルプロット
+                data_range = 1:hue_num;
+                h(k) = errorbar(hue_x(data_range), GEindex_y(data_range), err(1,data_range), err(2,data_range), '-o', 'Color', graph_color(k,:));
+                hold on;
+                
+                % 銅と金のプロット
+                h_cuau(k) = errorbar(hue_x(9:10), GEindex_y(9:10), err(1,9:10), err(2,9:10), '--s', 'Color', graph_color(k,:));
+                % 銅と金にテキスト
+                if k == 1
+                    text(hue_x(9)+2, GEindex_y(9), 'Cu');
+                    text(hue_x(10)+2, GEindex_y(10), 'Au');
+                end
+            end
+        end
+        
+        % サブプロットのタイトル
+        t_txt = object.light(j);
+        title(t_txt, 'FontSize', sz.sgt);
+        
+        % axis
+        xlim([-10 360]);
+        xlabel('Color direction (degree)');
+        ylabel('GE index');
+        
+        % legend
+        lgd = legend(h, num2cell(object.rough));
+        lgd.NumColumns = 1;
+        lgd.Title.String = 'roughness';
+        lgd.Title.FontWeight = 'normal';
+        lgd.FontSize = sz.lgd;
+        lgd.Location = 'northeastoutside';
+        
+    end
+    
+    % save
+    f.Position = [715,1081,1074,964];
+    graphName = strcat('GEindex_',object.material(i),'.png');
+    fileName = strcat('../../analysis_result/',exp,'/',sn,'/graph/GEindex/',graphName);
+    saveas(gcf, fileName);
+    
+    
+    %% 粗さ条件をまとめた平均
+    f = figure;
+    hue_deg_rough_mean = mean(hue_deg, 3);
+    for j = 1:object.light_num
+        hue_x = hue_deg_rough_mean(:,j);
+        if hue_x(1) > 180
+            hue_x(1) = hue_x(1) - 360;
+        end
+        
+        GEindex_y = mean(GEindex{i}(:,:,j,:), 4);
+        CI95_y = mean(CI95_GEindex{i}(:,:,j,:), 4);
+        err = abs(GEindex_y - CI95_y);
+        
+        if i == 1 % プラスチック
+            h(j) = errorbar(hue_x, GEindex_y, err(1,:), err(2,:), '-o', 'Color', graph_color(j,:));
+            hold on;
+        elseif i == 2 % 金属
+            % マンセルプロット
+            data_range = 1:hue_num;
+            h(j) = errorbar(hue_x(data_range), GEindex_y(data_range), err(1,data_range), err(2,data_range), '-o', 'Color', graph_color(j,:));
+            hold on;
+
+            % 銅と金のプロット
+            h_cuau(j) = errorbar(hue_x(9:10), GEindex_y(9:10), err(1,9:10), err(2,9:10), '--s', 'Color', graph_color(j,:));
+            % 銅と金にテキスト
+            if j == 1
+                text(hue_x(9)+2, GEindex_y(9), 'Cu');
+                text(hue_x(10)+2, GEindex_y(10), 'Au');
+            end
         end
     end
-    %}
-    
-    
-    % 照明・粗さ条件をまとめた平均
-    figure;
-    hue_name = string(round(hue_mean_360{i}(:,1,1)))';
-    x = 1:size(GEindex{i}, 2);
-    GEindex_y = GEindex_mean_all{i};
-    CI95_y = CI95_GEindex_mean_all{i};
-    err = abs(GEindex_y - CI95_y);
-    bar(x, GEindex_y);
-    hold on;
-    errorbar(x, GEindex_y, err(1,:), err(2,:), 'o', 'Color', [0 0 0], 'LineWidth', 1);
-    title('mean');
-    xticks(x);
-    xticklabels(hue_name);
-    xtickangle(45);
-    xlim([0 x(end)+1]);
+        
+    title('roughness mean');
+    xlim([-10 360]);
     xlabel('Color direction (degree)');
     ylabel('GE index');
-    hold off;
-    %}
+    
+    % legend
+    lgd = legend(h, num2cell(object.light));
+    lgd.NumColumns = 1;
+    lgd.Title.String = 'roughness';
+    lgd.Title.FontWeight = 'normal';
+    lgd.FontSize = sz.lgd;
+    lgd.Location = 'northeastoutside';
+    
+    % save
+    f.Position = [364,1499,866,550];
+    graphName = strcat('GEindex_',object.material(i),'_mean.png');
+    fileName = strcat('../../analysis_result/',exp,'/',sn,'/graph/GEindex/',graphName);
+    saveas(gcf, fileName);
     
 end
 

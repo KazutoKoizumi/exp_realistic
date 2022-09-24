@@ -1,6 +1,6 @@
 %% 物体部分の色分布（輝度・彩度・色相）を確認する
 
-clear all;
+%clear all;
 
 flag_par = 3; % 実験番号
 object = object_paramater(flag_par); % 各パラメータまとめ
@@ -67,6 +67,7 @@ for i = 1:2 % material
                 hue_mean_tmp(h,j,k) = mean(hue_list_deg);
                 %}
                 
+                %{
                 % u'v'の平均色度を求めてから色相を求める
                 img_uvl = tnt.three_channel_convert([], img, @(c,d) XYZTouvY(d));
                 mask_l = logical(mask);
@@ -77,8 +78,8 @@ for i = 1:2 % material
                 img_uvl_mean = mean(img_uvl_list, 2);
                 [hue_mean_tmp(h,j,k), rho] = cart2pol(img_uvl_mean(1)-wp_uvl(1), img_uvl_mean(2)-wp_uvl(2));
                 hue_mean_tmp(h,j,k) = rad2deg(hue_mean_tmp(h,j,k));
+                %}
                 
-                %{
                 % XYZの状態で物体の色平均取ってから色相を求める
                 mask_l = logical(mask);
                 for p = 1:3

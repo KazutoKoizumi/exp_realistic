@@ -33,7 +33,6 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
     sz.lgd = 8; %16;
     
     % プロット
-    count = 0;
     f = figure;
     for j = 1:object.light_num
         subplot(2,1,j);
@@ -76,12 +75,14 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
                 
                 % 銅と金のプロット
                 % 有彩色
-                h_color_auag(k) = errorbar(hue_x(9:10), psv_y(9:10,3), -psv_y(9:10,1), psv_y(9:10,2), '-s', 'Color', graph_color(k,:));
+                h_color_cuau(k) = errorbar(hue_x(9:10), psv_y(9:10,3), -psv_y(9:10,1), psv_y(9:10,2), '-s', 'Color', graph_color(k,:));
                 % 無彩色
-                h_gray_auag(k) = errorbar(hue_x(19:20), psv_y(19:20,3), -psv_y(19:20,1), psv_y(19:20,2), '--s', 'Color', graph_color(k,:));
+                h_gray_cuau(k) = errorbar(hue_x(19:20), psv_y(19:20,3), -psv_y(19:20,1), psv_y(19:20,2), '--s', 'Color', graph_color(k,:));
                 % 銅と金にテキスト
-                text(hue_x(9), psv_y(9,3), 'Au');
-                text(hue_x(10), psv_y(10,3), 'Au');
+                if k == 1
+                    text(hue_x(9)+3, psv_y(9,3), 'Cu');
+                    text(hue_x(10)+3, psv_y(10,3), 'Au');
+                end
             end
             
         end
@@ -91,23 +92,13 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
         t_txt = object.light(j);
         title(t_txt, 'FontSize', sz.sgt);
         
-        % 色相名;
-        hue_name_label = string(hue_x_label)';
-        hue_name_label = cat(2, hue_name_label, append(hue_name_label, ' achromatic'));
-        
         % axis
-        round(mean(hue_deg(:,j,:), 3))
-        %xticks();
-        %xticklabels(hue_name_label);
         xlabel('Color direction (degree)','FontSize',sz.label);
-        %xtickangle(45);
         xlim([-10 360]);
         ylabel('PSV','FontSize',sz.label);
-        %ylim([-2.5, 3.7]);
         ax.FontSize = sz.ax;
         
         % legend
-        %lgd = legend(h, {'0.05', '0.1', '0.2'});
         lgd = legend(h_color, num2cell(object.rough));
         lgd.NumColumns = 1;
         lgd.Title.String = 'roughness';
