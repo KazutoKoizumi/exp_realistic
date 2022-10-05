@@ -115,8 +115,11 @@ for i = 1:object.material_num
         GEindex_mean_exp1 = mean(gloss_diff.all(id_exp1,:,m),1);
         
         % 実験3の結果（粗さについて平均）
-        GEindex_mean_exp3 = GEindex_mean_all{i}(1:8);
-        err_exp3 = abs(GEindex_mean_all{i}(1:8) - CI95_GEindex_mean_all{i}(:,1:8));
+        %GEindex_mean_exp3 = GEindex_mean_all{i}(1:8);
+        %err_exp3 = abs(GEindex_mean_all{i}(1:8) - CI95_GEindex_mean_all{i}(:,1:8));
+        GEindex_mean_exp3 = mean(GEindex{i}(:,1:8,j,:),4);
+        CI95_mean_exp3 = mean(CI95_GEindex{i}(:,1:8,j,:), 4);
+        err_exp3 = abs(GEindex_mean_exp3 - CI95_mean_exp3);
         
         % 横軸の色相
         hue_x_exp1 = [0,45,90,135,180,225,270,315];
