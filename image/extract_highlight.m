@@ -9,7 +9,7 @@ object = object_paramater(flag_par); % 各パラメータまとめ
 idx = make_index(flag_par);
 pass.mat = '../../mat/';
 
-for i = 1:1 % material
+for i = 1:2 % material
     
     if i == 1
         hue_name = object.hue;
@@ -19,8 +19,8 @@ for i = 1:1 % material
         hue_num = object.hue_metal_num;
     end
     
-    for j = 1:1 % light
-        for k = 1:1 % roughness
+    for j = 1:2 % light
+        for k = 1:3 % roughness
             % 画像読み込み
             pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
             load(strcat(pass.object,'stimuli_xyz.mat'));
@@ -44,24 +44,35 @@ for i = 1:1 % material
                 tmp_HL_round = (lum_map > lum_threshold(1) & lum_map <= lum_threshold(2));
                 highlight_round_mask(:,:,h,i,j,k) = tmp_HL_round;
                 
-                figure;
+                
+                f = figure;
                 subplot(1,2,1);
                 imagesc(tmp_HL);
+                title('highlight');
+                xticks([]);
+                yticks([]);
                 subplot(1,2,2);
                 imagesc(tmp_HL_round);
+                title('arround highlight');
+                xticks([]);
+                yticks([]);
+                
+                f.Position = [197,480,1382,489];
+                
+                fig_name = strcat('mask_',object.material(i),'_',object.light(j),'_',object.rough(k),'_',hue_name(h),'.png');
+                file_name = strcat('../../image/exp_stimuli_mask/',fig_name);
+                exportgraphics(f, file_name);
+                close(f);
+                %}
                 
             end
-                
-            
-            
-            
+
         end
     end
+    
 end
 
-
-
-
-
+%save('../../mat/mask/highlight_mask.mat', 'highlight_mask');
+%save('../../mat/mask/highlight_round_mask.mat', 'highlight_round_mask');
 
 
