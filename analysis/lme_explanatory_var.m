@@ -49,10 +49,12 @@ for i = 1:object.material_num
                 mask_HL_near = highlight_round_mask(:,:,h_tmp,i,j,k);
             
                 %% 明るさ
+                
 
                 %% 明るさコントラスト
 
                 %% 色コントラスト
+                %{
                 % L*a*b*に変換
                 %img_lab = xyz2lab(img, 'WhitePoint', wp.d65_XYZ);
                 img_lab = tnt.three_channel_convert([], img, @(c,d) XYZToLab(d, wp.d65_XYZ_disp'));
@@ -73,13 +75,14 @@ for i = 1:object.material_num
                 dE = imcolordiff(mean_lab.highlight, mean_lab.near, 'Standard','CIEDE2000', 'isInputLab', true);
                 
                 color_difference_tmp(:,h,j,k) = dE;
+                %}
                
             end
             
         end
     end
     
-    color_difference{i} = color_difference_tmp;
+    %color_difference{i} = color_difference_tmp;
     
     
 end
