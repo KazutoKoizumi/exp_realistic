@@ -13,6 +13,15 @@ img_x = 960;
 
 %% Main
 for i = 1:2
+    
+    if i == 1
+        hue_name = object.hue;
+        hue_num = object.hue_num;
+    elseif i == 2
+        hue_name = object.hue_metal;
+        hue_num = object.hue_metal_num;
+    end 
+    
     for j = 1:2
         for k = 1:3
             
@@ -21,7 +30,15 @@ for i = 1:2
             
             stimuli_xyz = fillmissing(stimuli_xyz, 'previous');
             
+            stimuli = zeros(img_y,img_x,3,hue_num*2, 'uint8');
+            for l = 1:hue_num
+                stimuli(:,:,:,l) = cast(conv_XYZ2RGB(stimuli_xyz(:,:,:,l)),'uint8');
+                stimuli(:,:,:,hue_num+l) = cast(conv_XYZ2RGB(stimuli_xyz(:,:,:,hue_num+l)),'uint8');
+            end
+            pass.stimuli = strcat('../../stimuli/',object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
+            
             save(strcat(pass.object,'stimuli_xyz.mat'), 'stimuli_xyz');
+            save(strcat(pass.stimuli,'stimuli.mat'), 'stimuli');
         end
     end
 end
