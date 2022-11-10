@@ -16,6 +16,7 @@ wp.d65_XYZ = whitepoint('d65');
 wp.d65_XYZ_disp = wp.d65_XYZ * xyz_max(2);
 
 %% 刺激画像のループ
+count = 1;
 for i = 1:object.material_num
     
     if i == 1
@@ -121,7 +122,7 @@ for i = 1:object.material_num
                 end
                     
                 %% 色コントラスト
-                %{
+                
                 % L*a*b*に変換
                 img_lab = tnt.three_channel_convert([], img, @(c,d) XYZToLab(d, wp.d65_XYZ_disp'));
                 
@@ -144,6 +145,9 @@ for i = 1:object.material_num
                 %}
                
             end
+            
+            fprintf('finish : %d/%d\n\n', count, object.all_num);
+            count = count + 1;
 
         end
     end
@@ -165,21 +169,32 @@ for i = 1:object.material_num
         hue_num = object.hue_metal_num;
     end
     
-    highlight_lum_diff_tmp = zeros(1,hue_num,j,k);
-    contrast_diff_tmp = zeros(1,hue_num,j,k);
-    color_diff_tmp = zeros(1,hue_num,j,k);
+    highlight_lum_diff_tmp = zeros(1,hue_num,object.light_num,object.rough_num);
+    contrast_diff_tmp = zeros(1,hue_num,object.light_num,object.rough_num);
+    color_diff_tmp = zeros(1,hue_num,object.light_num,object.rough_num);
     
     for j = 1:object.light_num
         for k = 1:object.rough_num
             %% 明るさ変化
+            highlight_lum_diff_tmp(:,:,j,k) = highlight_lum{i}(:,1:hue_num,j,k) - highlight_lum{i}(:,hue_num+1:end,j,k);
 
             %% 明るさコントラスト変化
-
-            %% 色コントラスト変化
+            contrast_diff_tmp(:,:,j,k) = contrast_lum{i}(:,1:hue_num,j,k) - contrast_lum{i}(:,hue_num+1:end,j,k);
             
+            %% 色コントラスト変化
+            color_diff{i}(:,:,j,k) = color_difference{i}(:,1:hue_num,j,k) - color_difference{i}(:,hue_num+1:endj,k);
             
         end
     end
     
+    highlight_lum_diff{i} = highlight_lum_diff_tmp;
+    contrast_diff{i} = contrast_diff_tmp;
+    color_diff{i} = color_diff_tmp;
+    
 end
+
+%% 保存
+save('../../regress_var/highlight_lum_diff.mat', 'highlight_lum_diff');
+save('../../regress_var/contrast_diff.mat', 'contrast_diff');
+save('../../regress_var/color_diff.mat', 'color_diff');
 

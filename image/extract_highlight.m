@@ -19,12 +19,14 @@ for i = 1:2 % material
         hue_num = object.hue_metal_num;
     end
     
-    for j = 1:2 % light
+    for j = 2:2 % light
         for k = 1:3 % roughness
             % 画像読み込み
             pass.object = strcat(pass.mat,object.shape(1),'/',object.material(i),'/',object.light(j),'/',object.rough(k),'/');
             load(strcat(pass.object,'stimuli_xyz.mat'));
             load('../../mat/mask/bunny_mask.mat');
+            
+            [iy,ix,~] = size(mask);
             
             for h = 1:hue_num
                 img = stimuli_xyz(:,:,:,h);
@@ -38,13 +40,38 @@ for i = 1:2 % material
                 tmp_HL = lum_map > lum_threshold;
                 highlight_mask(:,:,h,i,j,k) = tmp_HL;
                 
-                % ハイライト周辺領域
+                % ハイライト周辺領域（輝度上位5~10%）
+                
                 n = [round(numel(lum_list_sort)*0.90), round(numel(lum_list_sort)*0.95)];
                 lum_threshold = [lum_list_sort(n(1)), lum_list_sort(n(2))];
                 tmp_HL_round = (lum_map > lum_threshold(1) & lum_map <= lum_threshold(2));
                 highlight_round_mask(:,:,h,i,j,k) = tmp_HL_round;
+                %}
                 
-                
+                % ハイライト周辺領域（ハイライトの周辺で物体部分を何ピクセルか）
+                % 輝度上位5~10%の場合、プラスチック・環境照明の領域が微妙かも
+                % -> 結果：あまり変化なし
+                %{
+                thr_pixel = 5;
+                tmp_HL_round = zeros(iy,ix);
+                for y = 1:iy
+                    for x = 1:ix
+                        if tmp_HL(y,x) == 1
+                            % ハイライトの周辺'thr_pixel'分を周辺領域とする
+                            for y_tmp = y-thr_pixel:y+thr_pixel
+                                for x_tmp = x-thr_pixel:x+thr_pixel
+                                    if mask(y_tmp,x_tmp)==1 & tmp_HL(y_tmp,x_tmp)==0
+                                        tmp_HL_round(y_tmp,x_tmp) = 1;
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                tmp_HL_round = logical(tmp_HL_round);
+                highlight_round_mask(:,:,h,i,j,k) = tmp_HL_round;
+                %}
+            
                 f = figure;
                 subplot(1,2,1);
                 imagesc(tmp_HL);
