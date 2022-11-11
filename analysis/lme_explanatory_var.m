@@ -182,7 +182,7 @@ for i = 1:object.material_num
             contrast_diff_tmp(:,:,j,k) = contrast_lum{i}(:,1:hue_num,j,k) - contrast_lum{i}(:,hue_num+1:end,j,k);
             
             %% 色コントラスト変化
-            color_diff{i}(:,:,j,k) = color_difference{i}(:,1:hue_num,j,k) - color_difference{i}(:,hue_num+1:endj,k);
+            color_diff_tmp(:,:,j,k) = color_difference{i}(:,1:hue_num,j,k) - color_difference{i}(:,hue_num+1:end,j,k);
             
         end
     end
@@ -194,7 +194,67 @@ for i = 1:object.material_num
 end
 
 %% 保存
-save('../../regress_var/highlight_lum_diff.mat', 'highlight_lum_diff');
-save('../../regress_var/contrast_diff.mat', 'contrast_diff');
-save('../../regress_var/color_diff.mat', 'color_diff');
+save('../../mat/regress_var/highlight_lum_diff.mat', 'highlight_lum_diff');
+save('../../mat/regress_var/contrast_diff.mat', 'contrast_diff');
+save('../../mat/regress_var/color_diff.mat', 'color_diff');
+
+%% 可視化
+load('../../mat/stimuli_color/hue_mean_360.mat');
+clear txt
+for p = 1:3
+    
+    switch p
+        case 1
+            val = highlight_lum_diff;
+            txt.title = 'highlight brightness diff';
+        case 2
+            val = contrast_diff;
+            txt.title = 'contrast diff';
+        case 3
+            val = color_diff;
+            txt.title = 'color contrast diff';
+    end
+    
+    for i = 1:object.material_num
+        figure;
+        hold on;
+        
+        if i == 1
+            hue_name = object.hue;
+            hue_num = object.hue_num;
+        elseif i == 2
+            hue_name = object.hue_metal;
+            hue_num = object.hue_metal_num;
+        end
+        
+        count = 1;
+        for j = 1:object.light_num
+            for k = 1:object.rough_num
+                
+                x = hue_mean_360{i}(:,j,k);
+                y = val{i}(:,:,j,k);
+                
+                if x(1)> 315
+                    x(1) = x(1) - 360;
+                end
+                
+                h(count) = plot(x(1:8), y(1:8));
+                
+                txt.lgd(count) = strcat(object.light(j),"  ",object.rough(k));
+                count = count + 1;
+            end
+        end
+        
+        xlim([-10 360])
+        
+        title(strcat(txt.title," ",object.material(i)));
+        
+        lgd = legend(h, num2cell(txt.lgd));
+        lgd.NumColumns = 1;
+        lgd.Title.FontWeight = 'normal';
+        lgd.Location = 'best';
+        
+    end
+    
+end
 
