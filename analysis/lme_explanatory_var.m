@@ -199,6 +199,9 @@ save('../../mat/regress_var/contrast_diff.mat', 'contrast_diff');
 save('../../mat/regress_var/color_diff.mat', 'color_diff');
 
 %% 可視化
+load('../../mat/regress_var/highlight_lum_diff.mat');
+load('../../mat/regress_var/contrast_diff.mat');
+load('../../mat/regress_var/color_diff.mat');
 load('../../mat/stimuli_color/hue_mean_360.mat');
 clear txt
 for p = 1:3

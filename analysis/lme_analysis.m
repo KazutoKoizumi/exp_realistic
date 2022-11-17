@@ -87,14 +87,85 @@ for i = 1:object.material_num
 end
 
 %% 相関
-% 物体条件に関して平均を取って、色相間で正規化した値の相関
-% 色相に対して正規化して平均した値についての相関と同じ
-pla.variables_mean = [pla.gloss_diff.obj_mean', pla.HL_lum_diff.obj_mean', pla.contrast_diff.obj_mean', pla.color_diff.obj_mean'];
-pla.variables_mean_normalized = normalize(pla.variables_mean);
-pla.corrcoef_hue = corrcoef(pla.variables_mean_normalized);
-metal.variables_mean = [metal.gloss_diff.obj_mean', metal.HL_lum_diff.obj_mean', metal.contrast_diff.obj_mean', metal.color_diff.obj_mean'];
-metal.variables_mean_normalized = normalize(metal.variables_mean);
-metal.corrcoef_hue = corrcoef(metal.variables_mean_normalized);
+% 物体条件全体で正規化された値を色相ごとに物体条件について平均し、色相方向の変化について相関を見る
+for i = 1:2
+    switch i
+        case 1
+            hue_num = object.hue_num;
+            
+            % 全体に対して正規化されたデータを「物体条件*8色相」の形にする
+            pla.gloss_diff.normalized_reshape = reshape(pla.gloss_diff.normalized, [hue_num, 6])';
+            pla.HL_lum_diff.normalized_reshape = reshape(pla.HL_lum_diff.normalized, [hue_num, 6])';
+            pla.contrast_diff.normalized_reshape = reshape(pla.contrast_diff.normalized, [hue_num, 6])';
+            pla.color_diff.normalized_reshape = reshape(pla.color_diff.normalized, [hue_num, 6])';
+            
+            % 物体条件について平均
+            pla.gloss_diff.normalized_mean = mean(pla.gloss_diff.normalized_reshape, 1);
+            pla.HL_lum_diff.normalized_mean = mean(pla.HL_lum_diff.normalized_reshape, 1);
+            pla.contrast_diff.normalized_mean = mean(pla.contrast_diff.normalized_reshape, 1);
+            pla.color_diff.normalized_mean = mean(pla.color_diff.normalized_reshape, 1);
+            
+            % 相関
+            pla.variables_mean = [pla.gloss_diff.normalized_mean', pla.HL_lum_diff.normalized_mean', pla.contrast_diff.normalized_mean', pla.color_diff.normalized_mean'];
+            pla.corrcoef_hue = corrcoef(pla.variables_mean);
+        case 2
+            hue_num = object.hue_metal_num;
+            
+            % 全体に対して正規化されたデータを「物体条件*8色相」の形にする
+            metal.gloss_diff.normalized_reshape = reshape(metal.gloss_diff.normalized, [hue_num, 6])';
+            metal.HL_lum_diff.normalized_reshape = reshape(metal.HL_lum_diff.normalized, [hue_num, 6])';
+            metal.contrast_diff.normalized_reshape = reshape(metal.contrast_diff.normalized, [hue_num, 6])';
+            metal.color_diff.normalized_reshape = reshape(metal.color_diff.normalized, [hue_num, 6])';
+            
+            % 物体条件について平均
+            metal.gloss_diff.normalized_mean = mean(metal.gloss_diff.normalized_reshape, 1);
+            metal.HL_lum_diff.normalized_mean = mean(metal.HL_lum_diff.normalized_reshape, 1);
+            metal.contrast_diff.normalized_mean = mean(metal.contrast_diff.normalized_reshape, 1);
+            metal.color_diff.normalized_mean = mean(metal.color_diff.normalized_reshape, 1);
+            
+            % 相関
+            metal.variables_mean = [metal.gloss_diff.normalized_mean', metal.HL_lum_diff.normalized_mean', metal.contrast_diff.normalized_mean', metal.color_diff.normalized_mean'];
+            metal.corrcoef_hue = corrcoef(metal.variables_mean);
+    end
+end
+
+% 色相間での各変数の変化を可視化する
+load('../../mat/stimuli_color/hue_mean_360_mod.mat');
+graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
+for i = 1:2
+    switch i
+        case 1
+            hue_num = object.hue_num;
+        case 2
+            hue_num = object.hue_metal_num;
+    end
+    
+    figure;
+    hold on;
+    
+    x = mean(hue_mean_360_mod{i}, [2 3]);
+    for n = 1:4
+        switch i
+            case 1
+                h_color(n) = plot(x, pla.variables_mean(:,n), '-o', 'Color', graph_color(n,:));
+            case 2
+                h_color(n) = plot(x(1:8), metal.variables_mean(1:8,n), '-o', 'Color', graph_color(n,:));
+                h_cuau(n) = plot(x(9:10), metal.variables_mean(9:10,n), '-s', 'Color', graph_color(n,:));
+        end
+    end
+    ax = gca;
+    
+    xlabel('Color direction (degree)');
+    xlim([-10 360]);
+    ylabel('Value');
+    
+    lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
+    legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
+    
+    hold off;
+    
+end
+%}
 
 %% 線形混合モデル
 tbl_pla = table(pla.gloss_diff.normalized, pla.HL_lum_diff.normalized, pla.contrast_diff.normalized, pla.color_diff.normalized, pla.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
