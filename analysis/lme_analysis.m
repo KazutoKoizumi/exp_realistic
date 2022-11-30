@@ -18,6 +18,8 @@ load('../../mat/regress_var/highlight_lum_diff.mat');
 load('../../mat/regress_var/contrast_diff.mat');
 load('../../mat/regress_var/color_diff.mat');
 
+load('../../mat/stimuli_color/hue_mean_360.mat');
+
 %% 変数整理
 for i = 1:object.material_num
     
@@ -130,7 +132,6 @@ for i = 1:2
 end
 
 % 色相間での各変数の変化を可視化する
-load('../../mat/stimuli_color/hue_mean_360_mod.mat');
 graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
 for i = 1:2
     switch i
@@ -197,4 +198,65 @@ for i = 1:object.material_num
     yticks(-0.1:0.1:0.6);
     ax.FontSize = 14;
 
+end
+
+%% 物体条件ごとに説明変数可視化（正規化なし）
+graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
+for i = 1:object.material_num
+    figure;
+    count_panel = 0;
+    
+    if i == 1
+        hue_name = object.hue;
+        hue_num = object.hue_num;
+    elseif i == 2
+        hue_name = object.hue_metal;
+        hue_num = object.hue_metal_num;
+    end
+    
+    for j = 1:object.light_num
+        for k = 1:object.rough_num
+            count_panel = count_panel + 1;
+            subplot(2,3, count_panel);
+            hold on;
+            
+            x = hue_mean_360{i}(:,j,k);
+            if x(1)> 315
+                x(1) = x(1) - 360;
+            end
+            
+            y(:,1) = GEindex{i}(:,:,j,k)';
+            y(:,2) = highlight_lum_diff{i}(:,:,j,k)';
+            y(:,3) = contrast_diff{i}(:,:,j,k)';
+            y(:,4) = color_diff{i}(:,:,j,k)';
+            
+            for n = 1:4
+                switch i
+                    case 1
+                        h_color(n) = plot(x, y(:,n), '-o', 'Color', graph_color(n,:));
+                    case 2
+                        h_color(n) = plot(x(1:8), y(1:8,n), '-o', 'Color', graph_color(n,:));
+                        if n == 1
+                            h_cuau(1) = plot(x(9), y(9,n), 's', 'Color', graph_color(n,:));
+                            h_cuau(2) = plot(x(10), y(10,n), 'd', 'Color', graph_color(n,:));
+                        end
+                end
+            end
+            
+            xlabel('Color direction (degree)');
+            xlim([-10 360]);
+            ylabel('Value');
+            
+            title(strcat(object.material(i), ', ', object.light(j), ', roughness:', num2str(object.rough_v(k))));
+
+            lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
+            legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
+            if i == 2
+                t = {'Cu', 'Au'};
+                legend(h_cuau, t, 'FontSize', 14, 'Location', 'eastoutside');
+            end
+            
+            clear y
+        end
+    end
 end
