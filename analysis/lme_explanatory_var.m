@@ -61,10 +61,11 @@ for i = 1:object.material_num
                 
                 % HKの大きさを求める
                 HK_map = ones(iy,ix);
+                HK_tmp_map = ones(iy,ix);
                 for y = 1:iy
                     for x = 1:ix
                         if mask(y,x)
-                            HK_map(y,x) = HKeffect_mod(sat_map(y,x), hue_map_deg(y,x)); % 物体部分以外はすべて1
+                            [HK_map(y,x), HK_tmp_map(y,x)] = HKeffect_mod(sat_map(y,x), hue_map_deg(y,x)); % 物体部分以外はすべて1
                         end
                     end
                 end

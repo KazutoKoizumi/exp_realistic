@@ -236,10 +236,10 @@ for i = 1:object.material_num
                         h_color(n) = plot(x, y(:,n), '-o', 'Color', graph_color(n,:));
                     case 2
                         h_color(n) = plot(x(1:8), y(1:8,n), '-o', 'Color', graph_color(n,:));
-                        if n == 1
-                            h_cuau(1) = plot(x(9), y(9,n), 's', 'Color', graph_color(n,:));
-                            h_cuau(2) = plot(x(10), y(10,n), 'd', 'Color', graph_color(n,:));
-                        end
+                        
+                        h_cuau(1) = plot(x(9), y(9,n), 's', 'Color', graph_color(n,:));
+                        h_cuau(2) = plot(x(10), y(10,n), 'd', 'Color', graph_color(n,:));
+                        
                 end
             end
             
@@ -248,13 +248,15 @@ for i = 1:object.material_num
             ylabel('Value');
             
             title(strcat(object.material(i), ', ', object.light(j), ', roughness:', num2str(object.rough_v(k))));
-
+            
+            %{
             lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
             legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
             if i == 2
                 t = {'Cu', 'Au'};
                 legend(h_cuau, t, 'FontSize', 14, 'Location', 'eastoutside');
             end
+            %}
             
             clear y
         end
