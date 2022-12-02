@@ -52,6 +52,7 @@ for i = 1:object.material_num
                 mask_HL_near = highlight_round_mask(:,:,h_tmp,i,j,k);
                 mask_body = mask - mask_HL;
                 
+                
                 %% HK効果の大きさを画像データと同じ形式で求める
                 % 彩度、色相を求める
                 [sat_map, sat_list] = get_saturation(img, mask, wp.d65_XYZ_disp');
@@ -121,6 +122,7 @@ for i = 1:object.material_num
                 else % 無彩色 -> 元の輝度を使用
                     contrast_tmp(:,h,j,k) = lum_original.HL.log_mean - lum_original.body.log_mean;
                 end
+                %}
                     
                 %% 色コントラスト
                 
@@ -158,6 +160,10 @@ for i = 1:object.material_num
     color_difference{i} = color_difference_tmp;
     
 end
+
+save('../../mat/regress_var/val/highlight_lum.mat', 'highlight_lum');
+save('../../mat/regress_var/val/contrast_lum.mat', 'contrast_lum');
+save('../../mat/regress_var/val/color_difference.mat', 'color_difference');
 
 %% 説明変数計算
 for i = 1:object.material_num
