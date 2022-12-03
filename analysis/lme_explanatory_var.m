@@ -52,7 +52,7 @@ for i = 1:object.material_num
                 mask_HL_near = highlight_round_mask(:,:,h_tmp,i,j,k);
                 mask_body = mask - mask_HL;
                 
-                
+                %{
                 %% HK効果の大きさを画像データと同じ形式で求める
                 % 彩度、色相を求める
                 [sat_map, sat_list] = get_saturation(img, mask, wp.d65_XYZ_disp');
@@ -143,9 +143,12 @@ for i = 1:object.material_num
                 
                 % CIE DE2000に基づき色差（色コントラスト）を計算
                 dE = imcolordiff(mean_lab.highlight, mean_lab.near, 'Standard','CIEDE2000', 'isInputLab', true);
-                
                 color_difference_tmp(:,h,j,k) = dE;
                 %}
+                
+                % deltaE（CIE76, deltaE76）を計算
+                dE76 = deltaE(mean_lab.highlight, mean_lab.near, 'isInputLab', true);
+                color_dE76_tmp(:,h,j,k) = dE76;
                
             end
             
@@ -155,15 +158,19 @@ for i = 1:object.material_num
         end
     end
     
-    highlight_lum{i} = highlight_lum_tmp;
-    contrast_lum{i} = contrast_tmp;
+    %highlight_lum{i} = highlight_lum_tmp;
+    %contrast_lum{i} = contrast_tmp;
     color_difference{i} = color_difference_tmp;
+    
+    color_dE76{i} = color_dE76_tmp;
     
 end
 
-save('../../mat/regress_var/val/highlight_lum.mat', 'highlight_lum');
-save('../../mat/regress_var/val/contrast_lum.mat', 'contrast_lum');
-save('../../mat/regress_var/val/color_difference.mat', 'color_difference');
+%save('../../mat/regress_var/val/highlight_lum.mat', 'highlight_lum');
+%save('../../mat/regress_var/val/contrast_lum.mat', 'contrast_lum');
+%save('../../mat/regress_var/val/color_difference.mat', 'color_difference');
+
+save('../../mat/regress_var/val/color_dE76.mat', 'color_dE76');
 
 %% 説明変数計算
 for i = 1:object.material_num
