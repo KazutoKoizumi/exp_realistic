@@ -19,6 +19,7 @@ load('../../mat/regress_var/contrast_diff.mat');
 load('../../mat/regress_var/color_diff.mat');
 
 load('../../mat/stimuli_color/hue_mean_360.mat');
+load('../../mat/stimuli_color/hue_mean_360_mod.mat');
 
 %% 変数整理
 for i = 1:object.material_num
@@ -202,6 +203,7 @@ end
 
 %% 物体条件ごとに説明変数可視化（正規化なし）
 graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
+clear y;
 for i = 1:object.material_num
     figure;
     count_panel = 0;
@@ -262,3 +264,59 @@ for i = 1:object.material_num
         end
     end
 end
+
+%% 照明条件ごとにデータをわける
+% プラスチック素材の面光源条件における説明力を確認
+for i = 1:object.material_num
+    
+    if i == 1
+        hue_name = object.hue;
+        hue_num = object.hue_num;
+    elseif i == 2
+        hue_name = object.hue_metal;
+        hue_num = object.hue_metal_num;
+    end
+    
+    for j = 1:object.light_num
+        switch i
+            case 1
+                % 素材・照明条件ごとに取り出す
+                pla.light.gloss_diff.all_reshape(:,j) = reshape(GEindex{i}(:,:,j,:), [numel(GEindex{i}(:,:,j,:)), 1]);
+                pla.light.HL_lum_diff.all_reshape(:,j) = reshape(highlight_lum_diff{i}(:,:,j,:), [numel(highlight_lum_diff{i}(:,:,j,:)), 1]);
+                pla.light.contrast_diff.all_reshape(:,j) = reshape(contrast_diff{i}(:,:,j,:), [numel(contrast_diff{i}(:,:,j,:)), 1]);
+                pla.light.color_diff.all_reshape(:,j) = reshape(color_diff{i}(:,:,j,:), [numel(color_diff{i}(:,:,j,:)), 1]);
+                
+            case 2
+                % 素材・照明条件ごとに抜き出す
+                metal.light.gloss_diff.all_reshape(:,j) = reshape(GEindex{i}(:,:,j,:), [numel(GEindex{i}(:,:,j,:)), 1]);
+                metal.light.HL_lum_diff.all_reshape(:,j) = reshape(highlight_lum_diff{i}(:,:,j,:), [numel(highlight_lum_diff{i}(:,:,j,:)), 1]);
+                metal.light.contrast_diff.all_reshape(:,j) = reshape(contrast_diff{i}(:,:,j,:), [numel(contrast_diff{i}(:,:,j,:)), 1]);
+                metal.light.color_diff.all_reshape(:,j) = reshape(color_diff{i}(:,:,j,:), [numel(color_diff{i}(:,:,j,:)), 1]);
+        end
+    end
+    
+    switch i
+        case 1
+            % z-score化（照明条件ごと）
+            pla.light.gloss_diff.normalized = normalize(pla.light.gloss_diff.all_reshape);
+            pla.light.HL_lum_diff.normalized = normalize(pla.light.HL_lum_diff.all_reshape);
+            pla.light.contrast_diff.normalized = normalize(pla.light.contrast_diff.all_reshape);
+            pla.light.color_diff.normalized = normalize(pla.light.color_diff.all_reshape);
+            
+            % 変量効果用の変数
+            pla.light.obj_condition = reshape(repmat(1:3, [hue_num,1]), [3*hue_num, 1]);
+            
+        case 2
+            metal.light.gloss_diff.normalized = normalize(metal.light.gloss_diff.all_reshape);
+            metal.light.HL_lum_diff.normalized = normalize(metal.light.HL_lum_diff.all_reshape);
+            metal.light.contrast_diff.normalized = normalize(metal.light.contrast_diff.all_reshape);
+            metal.light.color_diff.normalized = normalize(metal.light.color_diff.all_reshape);
+       
+            metal.light.obj_condition = reshape(repmat(1:3, [hue_num,1]), [3*hue_num, 1]);
+    end
+
+end
+
+% 相関
+
+%% 素材・照明条件ごとの線形混合モデル
