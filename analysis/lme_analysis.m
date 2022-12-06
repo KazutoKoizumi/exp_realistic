@@ -318,5 +318,154 @@ for i = 1:object.material_num
 end
 
 % 相関
+for i = 1:object.material_num
+    for j = 1:object.light_num
+        switch i
+            case 1
+                hue_num = object.hue_num;
+
+                % 全体に対して正規化されたデータを「物体条件*8色相」の形にする
+                pla.light.gloss_diff.normalized_reshape(:,:,j) = reshape(pla.light.gloss_diff.normalized(:,j), [hue_num, 3])';
+                pla.light.HL_lum_diff.normalized_reshape(:,:,j) = reshape(pla.light.HL_lum_diff.normalized(:,j), [hue_num, 3])';
+                pla.light.contrast_diff.normalized_reshape(:,:,j) = reshape(pla.light.contrast_diff.normalized(:,j), [hue_num, 3])';
+                pla.light.color_diff.normalized_reshape(:,:,j) = reshape(pla.light.color_diff.normalized(:,j), [hue_num, 3])';
+
+                % 物体条件について平均
+                pla.light.gloss_diff.normalized_mean(:,:,j) = mean(pla.light.gloss_diff.normalized_reshape(:,:,j), 1);
+                pla.light.HL_lum_diff.normalized_mean(:,:,j) = mean(pla.light.HL_lum_diff.normalized_reshape(:,:,j), 1);
+                pla.light.contrast_diff.normalized_mean(:,:,j) = mean(pla.light.contrast_diff.normalized_reshape(:,:,j), 1);
+                pla.light.color_diff.normalized_mean(:,:,j) = mean(pla.light.color_diff.normalized_reshape(:,:,j), 1);
+
+                % 相関
+                pla.light.variables_mean(:,:,j) = [pla.light.gloss_diff.normalized_mean(:,:,j)', pla.light.HL_lum_diff.normalized_mean(:,:,j)', pla.light.contrast_diff.normalized_mean(:,:,j)', pla.light.color_diff.normalized_mean(:,:,j)'];
+                pla.light.corrcoef_hue(:,:,j) = corrcoef(pla.light.variables_mean(:,:,j));
+                
+            case 2
+                hue_num = object.hue_metal_num;
+
+                % 全体に対して正規化されたデータを「物体条件*8色相」の形にする
+                metal.light.gloss_diff.normalized_reshape(:,:,j) = reshape(metal.light.gloss_diff.normalized(:,j), [hue_num, 3])';
+                metal.light.HL_lum_diff.normalized_reshape(:,:,j) = reshape(metal.light.HL_lum_diff.normalized(:,j), [hue_num, 3])';
+                metal.light.contrast_diff.normalized_reshape(:,:,j) = reshape(metal.light.contrast_diff.normalized(:,j), [hue_num, 3])';
+                metal.light.color_diff.normalized_reshape(:,:,j) = reshape(metal.light.color_diff.normalized(:,j), [hue_num, 3])';
+
+                % 物体条件について平均
+                metal.light.gloss_diff.normalized_mean(:,:,j) = mean(metal.light.gloss_diff.normalized_reshape(:,:,j), 1);
+                metal.light.HL_lum_diff.normalized_mean(:,:,j) = mean(metal.light.HL_lum_diff.normalized_reshape(:,:,j), 1);
+                metal.light.contrast_diff.normalized_mean(:,:,j) = mean(metal.light.contrast_diff.normalized_reshape(:,:,j), 1);
+                metal.light.color_diff.normalized_mean(:,:,j) = mean(metal.light.color_diff.normalized_reshape(:,:,j), 1);
+
+                % 相関
+                metal.light.variables_mean(:,:,j) = [metal.light.gloss_diff.normalized_mean(:,:,j)', metal.light.HL_lum_diff.normalized_mean(:,:,j)', metal.light.contrast_diff.normalized_mean(:,:,j)', metal.light.color_diff.normalized_mean(:,:,j)'];
+                metal.light.corrcoef_hue(:,:,j) = corrcoef(metal.light.variables_mean(:,:,j));               
+        end 
+    end
+end
+
+% 色相間での各変数の変化を可視化する
+graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
+for i = 1:object.material_num
+    for j = 1:object.light_num
+        figure;
+        hold on;
+
+        x = mean(hue_mean_360_mod{i}, [2 3]);
+        for n = 1:4
+            switch i
+                case 1
+                    h_color(n) = plot(x, pla.light.variables_mean(:,n,j), '-o', 'Color', graph_color(n,:));
+                case 2
+                    h_color(n) = plot(x(1:8), metal.light.variables_mean(1:8,n,j), '-o', 'Color', graph_color(n,:));
+                    h_cuau(n) = plot(x(9:10), metal.light.variables_mean(9:10,n,j), '-s', 'Color', graph_color(n,:));
+            end
+        end
+        ax = gca;
+
+        xlabel('Color direction (degree)');
+        xlim([-10 360]);
+        ylabel('Value');
+        
+        title(strcat(object.material(i),', ',object.light(j)));
+
+        lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
+        legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
+
+        hold off;
+    end
+end
 
 %% 素材・照明条件ごとの線形混合モデル
+%{
+for j = 1:object.light_num % 照明条件
+    tbl_pla_light{j} = table(pla.light.gloss_diff.normalized(:,j), pla.light.HL_lum_diff.normalized(:,j), pla.light.contrast_diff.normalized(:,j), pla.light.color_diff.normalized(:,j), pla.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
+    tbl_metal_light = table(metal.light.gloss_diff.normalized(:,j), metal.light.HL_lum_diff.normalized(:,j), metal.light.contrast_diff.normalized(:,j), metal.light.color_diff.normalized(:,j), metal.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
+    
+    fprintf('light : %s\n',object.light(j));
+    
+    lme_pla_light = fitlme(tbl_pla_light, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
+    lme_pla_light.Rsquared
+    lme_metal_light = fitlme(tbl_metal_light, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
+    lme_metal_light.Rsquared
+    
+end
+%}
+
+j = 1; % 照明条件：area
+tbl_pla_area = table(pla.light.gloss_diff.normalized(:,j), pla.light.HL_lum_diff.normalized(:,j), pla.light.contrast_diff.normalized(:,j), pla.light.color_diff.normalized(:,j), pla.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
+tbl_metal_area = table(metal.light.gloss_diff.normalized(:,j), metal.light.HL_lum_diff.normalized(:,j), metal.light.contrast_diff.normalized(:,j), metal.light.color_diff.normalized(:,j), metal.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
+fprintf('light : %s\n',object.light(j));
+lme_pla_area = fitlme(tbl_pla_area, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
+lme_pla_area.Rsquared
+lme_metal_area = fitlme(tbl_metal_area, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
+lme_metal_area.Rsquared
+
+j = 2; % 照明条件：envmap
+tbl_pla_envmap = table(pla.light.gloss_diff.normalized(:,j), pla.light.HL_lum_diff.normalized(:,j), pla.light.contrast_diff.normalized(:,j), pla.light.color_diff.normalized(:,j), pla.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
+tbl_metal_envmap = table(metal.light.gloss_diff.normalized(:,j), metal.light.HL_lum_diff.normalized(:,j), metal.light.contrast_diff.normalized(:,j), metal.light.color_diff.normalized(:,j), metal.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
+fprintf('light : %s\n',object.light(j));
+lme_pla_envmap = fitlme(tbl_pla_envmap, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
+lme_pla_envmap.Rsquared
+lme_metal_envmap = fitlme(tbl_metal_envmap, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
+lme_metal_envmap.Rsquared
+
+% プロット
+for i = 1:object.material_num
+    for j = 1:object.light_num
+        figure;
+        x = 1:3;
+        
+        if i == 1 & j == 1
+            y = lme_pla_area.Coefficients.Estimate(2:end)';
+        elseif i == 1 & j == 2
+            y = lme_pla_envmap.Coefficients.Estimate(2:end)';
+        elseif i == 2 & j == 1
+            y = lme_metal_area.Coefficients.Estimate(2:end)';
+        elseif i == 2 & j == 2
+            y = lme_metal_envmap.Coefficients.Estimate(2:end)';
+        end
+            
+        %{
+        switch
+            case 1
+                y = lme_pla_light.Coefficients.Estimate(2:end)';
+            case 2
+                y = lme_metal_light.Coefficients.Estimate(2:end)';
+        end
+        %}
+
+        bar(x,y);
+        ax = gca;
+        
+        title(strcat(object.material(i),', ',object.light(j)));
+
+        xticks(x);
+        xticklabels(["highlight brightness", "brightness contrast", "color contrast"]);
+        xtickangle(45);
+        %ylabel("Regression coefficient");
+        ylim([-0.35 0.85]);
+        %yticks(-0.1:0.1:0.6);
+        ax.FontSize = 14;
+        
+    end
+end
+
