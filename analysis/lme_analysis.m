@@ -152,7 +152,10 @@ for i = 1:2
                 h_color(n) = plot(x, pla.variables_mean(:,n), '-o', 'Color', graph_color(n,:));
             case 2
                 h_color(n) = plot(x(1:8), metal.variables_mean(1:8,n), '-o', 'Color', graph_color(n,:));
-                h_cuau(n) = plot(x(9:10), metal.variables_mean(9:10,n), '-s', 'Color', graph_color(n,:));
+                %h_cuau(n) = plot(x(9:10), metal.variables_mean(9:10,n), '-s', 'Color', graph_color(n,:));
+                
+                h_cuau(1) = plot(x(9), metal.variables_mean(9,n), 's', 'Color', graph_color(n,:));
+                h_cuau(2) = plot(x(10), metal.variables_mean(10,n), 'd', 'Color', graph_color(n,:));
         end
     end
     ax = gca;
@@ -161,8 +164,8 @@ for i = 1:2
     xlim([-10 360]);
     ylabel('Value');
     
-    lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
-    legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
+    %lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
+    %legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
     
     hold off;
     
@@ -222,10 +225,7 @@ for i = 1:object.material_num
             subplot(2,3, count_panel);
             hold on;
             
-            x = hue_mean_360{i}(:,j,k);
-            if x(1)> 315
-                x(1) = x(1) - 360;
-            end
+            x = hue_mean_360_mod{i}(:,j,k);
             
             y(:,1) = GEindex{i}(:,:,j,k)';
             y(:,2) = highlight_lum_diff{i}(:,:,j,k)';
@@ -246,7 +246,7 @@ for i = 1:object.material_num
             end
             
             xlabel('Color direction (degree)');
-            xlim([-10 360]);
+            xlim([-20 360]);
             ylabel('Value');
             
             title(strcat(object.material(i), ', ', object.light(j), ', roughness:', num2str(object.rough_v(k))));
@@ -376,7 +376,10 @@ for i = 1:object.material_num
                     h_color(n) = plot(x, pla.light.variables_mean(:,n,j), '-o', 'Color', graph_color(n,:));
                 case 2
                     h_color(n) = plot(x(1:8), metal.light.variables_mean(1:8,n,j), '-o', 'Color', graph_color(n,:));
-                    h_cuau(n) = plot(x(9:10), metal.light.variables_mean(9:10,n,j), '-s', 'Color', graph_color(n,:));
+                    %h_cuau(n) = plot(x(9:10), metal.light.variables_mean(9:10,n,j), '-s', 'Color', graph_color(n,:));
+                    
+                    h_cuau(1) = plot(x(9), metal.light.variables_mean(9,n), 's', 'Color', graph_color(n,:));
+                    h_cuau(2) = plot(x(10), metal.light.variables_mean(10,n), 'd', 'Color', graph_color(n,:));
             end
         end
         ax = gca;
@@ -387,29 +390,14 @@ for i = 1:object.material_num
         
         title(strcat(object.material(i),', ',object.light(j)));
 
-        lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
-        legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
+        %lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
+        %legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
 
         hold off;
     end
 end
 
 %% 素材・照明条件ごとの線形混合モデル
-%{
-for j = 1:object.light_num % 照明条件
-    tbl_pla_light{j} = table(pla.light.gloss_diff.normalized(:,j), pla.light.HL_lum_diff.normalized(:,j), pla.light.contrast_diff.normalized(:,j), pla.light.color_diff.normalized(:,j), pla.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
-    tbl_metal_light = table(metal.light.gloss_diff.normalized(:,j), metal.light.HL_lum_diff.normalized(:,j), metal.light.contrast_diff.normalized(:,j), metal.light.color_diff.normalized(:,j), metal.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
-    
-    fprintf('light : %s\n',object.light(j));
-    
-    lme_pla_light = fitlme(tbl_pla_light, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
-    lme_pla_light.Rsquared
-    lme_metal_light = fitlme(tbl_metal_light, 'gloss_diff ~ lum_diff + lum_contrast_diff + color_diff + (1|object_condition) + (lum_diff-1|object_condition) + (lum_contrast_diff-1|object_condition) + (color_diff-1|object_condition)')
-    lme_metal_light.Rsquared
-    
-end
-%}
-
 j = 1; % 照明条件：area
 tbl_pla_area = table(pla.light.gloss_diff.normalized(:,j), pla.light.HL_lum_diff.normalized(:,j), pla.light.contrast_diff.normalized(:,j), pla.light.color_diff.normalized(:,j), pla.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
 tbl_metal_area = table(metal.light.gloss_diff.normalized(:,j), metal.light.HL_lum_diff.normalized(:,j), metal.light.contrast_diff.normalized(:,j), metal.light.color_diff.normalized(:,j), metal.light.obj_condition, 'VariableNames', {'gloss_diff', 'lum_diff', 'lum_contrast_diff', 'color_diff', 'object_condition'});
@@ -434,24 +422,15 @@ for i = 1:object.material_num
         figure;
         x = 1:3;
         
-        if i == 1 & j == 1
+        if i == 1 && j == 1
             y = lme_pla_area.Coefficients.Estimate(2:end)';
-        elseif i == 1 & j == 2
+        elseif i == 1 && j == 2
             y = lme_pla_envmap.Coefficients.Estimate(2:end)';
-        elseif i == 2 & j == 1
+        elseif i == 2 && j == 1
             y = lme_metal_area.Coefficients.Estimate(2:end)';
-        elseif i == 2 & j == 2
+        elseif i == 2 && j == 2
             y = lme_metal_envmap.Coefficients.Estimate(2:end)';
         end
-            
-        %{
-        switch
-            case 1
-                y = lme_pla_light.Coefficients.Estimate(2:end)';
-            case 2
-                y = lme_metal_light.Coefficients.Estimate(2:end)';
-        end
-        %}
 
         bar(x,y);
         ax = gca;
