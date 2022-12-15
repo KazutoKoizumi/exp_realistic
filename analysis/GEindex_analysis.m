@@ -88,7 +88,7 @@ end
 
 %% プロット
 % 色相名を角度に
-load('../../mat/stimuli_color/hue_mean_360.mat');
+load('../../mat/stimuli_color/hue_mean_360_mod.mat');
 
 % グラフ設定
 graph_color = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
@@ -97,7 +97,7 @@ sz.lgd = 8; %16;
 
 for i = 1:object.material_num
     
-    hue_deg = hue_mean_360{i};
+    hue_deg = hue_mean_360_mod{i};
     
     %% 全結果
     f = figure;
@@ -107,9 +107,11 @@ for i = 1:object.material_num
             
             hue_x = round(hue_deg(:,j,k));
             hue_x_label = hue_x;
+            %{
             if hue_x(1) > 180
                 hue_x(1) = hue_x(1) - 360;
             end
+            %}
             
             GEindex_y = GEindex{i}(:,:,j,k);
             CI95_y = CI95_GEindex{i}(:,:,j,k);
@@ -127,7 +129,8 @@ for i = 1:object.material_num
                 hold on;
                 
                 % 銅と金のプロット
-                h_cuau(k) = errorbar(hue_x(9:10), GEindex_y(9:10), err(1,9:10), err(2,9:10), '--s', 'Color', graph_color(k,:));
+                h_cuau(1) = errorbar(hue_x(9), GEindex_y(9), err(1,9), err(2,9), 's', 'Color', graph_color(k,:));
+                h_cuau(2) = errorbar(hue_x(10), GEindex_y(10), err(1,10), err(2,10), 'd', 'Color', graph_color(k,:));
                 % 銅と金にテキスト
                 if k == 1
                     text(hue_x(9)+2, GEindex_y(9), 'Cu');
@@ -141,7 +144,7 @@ for i = 1:object.material_num
         title(t_txt, 'FontSize', sz.sgt);
         
         % axis
-        xlim([-10 360]);
+        xlim([-20 360]);
         xlabel('Color direction (degree)');
         ylabel('GE index');
         
@@ -163,6 +166,7 @@ for i = 1:object.material_num
     
     
     %% 粗さ条件をまとめた平均
+    %{
     f = figure;
     hue_deg_rough_mean = mean(hue_deg, 3);
     for j = 1:object.light_num
@@ -195,7 +199,7 @@ for i = 1:object.material_num
     end
         
     title('roughness mean');
-    xlim([-10 360]);
+    xlim([-20 360]);
     xlabel('Color direction (degree)');
     ylabel('GE index');
     
@@ -212,6 +216,25 @@ for i = 1:object.material_num
     graphName = strcat('GEindex_',object.material(i),'_mean.png');
     fileName = strcat('../../analysis_result/',exp,'/',sn,'/graph/GEindex/',graphName);
     saveas(gcf, fileName);
+    %}
+    
+    % 素材ごとの結果（照明、粗さに関して平均）
+    f = figure;
+    hold on;
+    x = mean(hue_deg, [2,3]);
+    y = GEindex_mean_all{i};
+    err = abs(GEindex_mean_all{i} - CI95_GEindex_mean_all{i});
+    if i == 1 % プラスチック
+        errorbar(x,y, err(1,:), err(2,:), '-o', 'Color', graph_color(1,:));
+    elseif i == 2 % 金属
+        errorbar(x(1:8),y(1:8), err(1,1:8), err(2,1:8), '-o', 'Color', graph_color(1,:));
+        errorbar(x(9),y(9), err(1,9), err(2,9), 's', 'Color', graph_color(1,:));
+        errorbar(x(10),y(10), err(1,10), err(2,10), 'd', 'Color', graph_color(1,:));
+    end
+    title(object.material(i));
+    xlim([-20 360]);
+    xlabel('Color direction (degree)');
+    ylabel('GE index');
     
 end
 
