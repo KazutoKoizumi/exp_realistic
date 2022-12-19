@@ -125,8 +125,8 @@ for i = 1:object_exp3.material_num
             hue_x_exp3 = round(hue_deg(1:8,j,k));
             
             % プロット
-            hold on;
             h_exp1(k) = errorbar(hue_x_exp1, GEindex_exp1, err_exp1(1,:), err_exp1(2,:), '--o', 'Color', graph_color(k,:));
+            hold on;
             h_exp3(k) = errorbar(hue_x_exp3, GEindex_exp3, err_exp3(1,:), err_exp3(2,:), '-o', 'Color', graph_color(k,:));
             
         end
