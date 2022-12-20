@@ -81,11 +81,11 @@ load(strcat('../../analysis_result/',exp,'/',sn,'/sig_diff.mat'));
 mkdir(strcat('../../analysis_result/',exp,'/',sn,'/graph'));
 
 % 色相名を角度に
-load('../../mat/stimuli_color/hue_mean_360.mat');
+load('../../mat/stimuli_color/hue_mean_360_mod.mat');
 
 for i = 1:2
     
-    f = plot_psv_realistic(psv_CI{i}, i, hue_mean_360{i});
+    f = plot_psv_realistic(psv_CI{i}, i, hue_mean_360_mod{i});
     
     f.WindowState = 'maximized';
     graphName = strcat('psv_',object.material(i),'.png');

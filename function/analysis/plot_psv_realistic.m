@@ -26,11 +26,11 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
     %vAbs = max(abs([v_min, v_max]));
     
     % プロット時のサイズ
-    sz.t = 14; %22;
-    sz.sgt = 12; %20;
-    sz.label = 14; %22;
-    sz.ax = 12; %20;
-    sz.lgd = 8; %16;
+    sz.t = 16; %22;
+    sz.sgt = 14; %20;
+    sz.label = 16; %22;
+    sz.ax = 14; %20;
+    sz.lgd = 10; %16;
     
     % プロット
     f = figure;
@@ -75,13 +75,17 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
                 
                 % 銅と金のプロット
                 % 有彩色
-                h_color_cuau(k) = errorbar(hue_x(9:10), psv_y(9:10,3), -psv_y(9:10,1), psv_y(9:10,2), '-s', 'Color', graph_color(k,:));
+                %h_color_cuau(k) = errorbar(hue_x(9:10), psv_y(9:10,3), -psv_y(9:10,1), psv_y(9:10,2), '-s', 'Color', graph_color(k,:));
+                h_color_cuau(1) = errorbar(hue_x(9), psv_y(9,3), -psv_y(9,1), psv_y(9,2), 's', 'Color', graph_color(k,:));
+                h_color_cuau(2) = errorbar(hue_x(10), psv_y(10,3), -psv_y(10,1), psv_y(10,2), 'd', 'Color', graph_color(k,:));
                 % 無彩色
-                h_gray_cuau(k) = errorbar(hue_x(19:20), psv_y(19:20,3), -psv_y(19:20,1), psv_y(19:20,2), '--s', 'Color', graph_color(k,:));
+                %h_gray_cuau(k) = errorbar(hue_x(19:20), psv_y(19:20,3), -psv_y(19:20,1), psv_y(19:20,2), '--s', 'Color', graph_color(k,:));
+                h_gray_cuau(1) = errorbar(hue_x(19), psv_y(19,3), -psv_y(19,1), psv_y(19,2), 's', 'Color', graph_color(k,:));
+                h_gray_cuau(2) = errorbar(hue_x(20), psv_y(20,3), -psv_y(20,1), psv_y(20,2), 'd', 'Color', graph_color(k,:));
                 % 銅と金にテキスト
                 if k == 1
-                    text(hue_x(9)+3, psv_y(9,3), 'Cu');
-                    text(hue_x(10)+3, psv_y(10,3), 'Au');
+                    text(hue_x(9)+3, psv_y(9,3), 'Cu', 'FontSize', 14);
+                    text(hue_x(10)+3, psv_y(10,3), 'Au', 'FontSize', 14);
                 end
             end
             
@@ -94,7 +98,7 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
         
         % axis
         xlabel('Color direction (degree)','FontSize',sz.label);
-        xlim([-10 360]);
+        xlim([-20 360]);
         ylabel('PSV','FontSize',sz.label);
         ax.FontSize = sz.ax;
         
