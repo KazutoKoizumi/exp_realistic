@@ -14,9 +14,19 @@ pass.mat = '../../mat/';
 load('../../analysis_result/exp_realistic/all/GEindex/GEindex.mat');
 
 % 説明変数
+
 load('../../mat/regress_var/highlight_lum_diff.mat');
 load('../../mat/regress_var/contrast_diff.mat');
 load('../../mat/regress_var/color_diff.mat');
+pass_save = '../../analysis_result/exp_realistic/all/LME_result/';
+%}
+
+%{
+load('../../mat/regress_var/HL_30per/highlight_lum_diff.mat');
+load('../../mat/regress_var/HL_30per/contrast_diff.mat');
+load('../../mat/regress_var/HL_30per/color_diff.mat');
+pass_save = '../../analysis_result/exp_realistic/all/LME_result/HL_30per/';
+%}
 
 load('../../mat/stimuli_color/hue_mean_360.mat');
 load('../../mat/stimuli_color/hue_mean_360_mod.mat');
@@ -166,6 +176,8 @@ for i = 1:2
     
     %lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
     %legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
+    file_name = strcat(pass_save, 'variables_hue_value_', object.material(i), '.png');
+    saveas(gcf, file_name);
     
     hold off;
     
@@ -201,6 +213,9 @@ for i = 1:object.material_num
     ylim([-0.10 0.6]);
     yticks(-0.1:0.1:0.6);
     ax.FontSize = 14;
+    
+    file_name = strcat(pass_save, 'LME_result_', object.material(i), '.png');
+    saveas(gcf, file_name);
 
 end
 
@@ -208,7 +223,7 @@ end
 graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
 clear y;
 for i = 1:object.material_num
-    figure;
+    f = figure;
     count_panel = 0;
     
     if i == 1
@@ -263,6 +278,11 @@ for i = 1:object.material_num
             clear y
         end
     end
+    
+    f.WindowState = 'maximized';
+    file_name = strcat(pass_save, 'variables_hue_value_', object.material(i), '_all.png');
+    saveas(gcf, file_name);
+    
 end
 
 %% 照明条件ごとにデータをわける
@@ -392,6 +412,9 @@ for i = 1:object.material_num
 
         %lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
         %legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');
+        
+        file_name = strcat(pass_save, 'light_result/variables_hue_value_', object.material(i), '_', object.light(j), '.png');
+        saveas(gcf, file_name);
 
         hold off;
     end
@@ -444,6 +467,8 @@ for i = 1:object.material_num
         ylim([-0.35 0.85]);
         %yticks(-0.1:0.1:0.6);
         ax.FontSize = 14;
+        
+        file_name = strcat(pass_save, 'light_result/LME_result_', object.material(i), '_', object.light(j), '.png');
         
     end
 end

@@ -71,6 +71,28 @@ for m = 1:2 % 彩色条件
                 CI95_GEindex_tmp(:,hue,j,k) = CI95_bootstrap(BS_GEindex_exp1_tmp(:,hue))';
             end
             
+            % 標準偏差
+            GEindex_exp1_tmp = mean(gloss_diff.all(id_exp1,:,m),1); % 拡散反射率について平均
+            GEindex_std_tmp(:,:,j,k) = std(GEindex_exp1_tmp);
+            
+            BS_GEindex_exp1_tmp = mean((BS_psv_tmp(:,2:9,:) - BS_psv_tmp(:,1,:)), 3); % 拡散反射率について平均
+            BS_GEindex_std_tmp(:,:,j,k) = std(BS_GEindex_exp1_tmp, [], 2);
+            
+            CI95_GEindex_std_tmp(:,:,j,k) = CI95_bootstrap(BS_GEindex_std_tmp(:,:,j,k))';
+            
+            %{
+            % 変動係数
+            mu = mean(gloss_diff.all(id_exp1,:,m),2);
+            GEindex_cv_exp1_tmp = GEindex_std_exp1_tmp ./ mu;
+            GEindex_cv_tmp(:,:,j,k) = mean(GEindex_cv_exp1_tmp);
+            
+            mu = mean((BS_psv_tmp(:,2:9,:) - BS_psv_tmp(:,1,:)), 2);
+            BS_GEindex_cv_exp1_tmp = BS_GEindex_std_exp1_tmp ./ mu;
+            BS_GEindex_cv_tmp(:,:,j,k) = mean(BS_GEindex_cv_exp1_tmp, 3); % 拡散反射率について平均
+            
+            CI95_GEindex_cv_tmp(:,:,j,k) = CI95_bootstrap(BS_GEindex_cv_tmp(:,:,j,k))';
+            %}
+
         end
     end
     
@@ -79,6 +101,16 @@ for m = 1:2 % 彩色条件
     BS_GEindex{i} = BS_GEindex_tmp;
     BS_GEindex_mean_all{i} = mean(BS_GEindex{i}, [3,4]);
     CI95_GEindex{i} = CI95_GEindex_tmp;
+    
+    GEindex_std{i} = GEindex_std_tmp;
+    BS_GEindex_std{i} = BS_GEindex_std_tmp;
+    CI95_GEindex_std{i} = CI95_GEindex_std_tmp;
+    
+    %{
+    GEindex_cv{i} = GEindex_cv_tmp;
+    BS_GEindex_cv{i} = BS_GEindex_cv_tmp;
+    CI95_GEindex_cv{i} = CI95_GEindex_cv_tmp;
+    %}
     
     % 信頼区間：照明・粗さ条件をまとめた平均
     for hue = 1:8
@@ -93,10 +125,47 @@ exp1.BS_GEindex = BS_GEindex;
 exp1.BS_GEindex_mean_all = BS_GEindex_mean_all;
 exp1.CI95_GEindex = CI95_GEindex;
 exp1.CI95_GEindex_mean_all = CI95_GEindex_mean_all;
+exp1.GEindex_std = GEindex_std;
+exp1.BS_GEindex_std = BS_GEindex_std;
+exp1.CI95_GEindex_std = CI95_GEindex_std;
+%exp1.GEindex_cv = GEindex_cv;
+%exp1.BS_GEindex_cv = BS_GEindex_cv;
+%exp1.CI95_GEindex_cv = CI95_GEindex_cv;
 clear GEindex GEindex_mean_all BS_GEindex BS_GEindex_mean_all CI95_GEindex CI95_GEindex_mean_all gloss_diff;
 
 clear GEindex_tmp GEindex_exp1_tmp BS_GEindex_tmp BS_GEindex_exp1_tmp BS_psv_exp1 BS_psv_tmp CI95_GEindex_tmp CI95_GEindex_mean_all_tmp
+clear GEindex_std BS_GEindex_std GEindex_std_tmp BS_GEindex_std_tmp CI95_GEindex_std_tmp;
+%clear GEindex_cv BS_GEindex_cv GEindex_cv_exp1_tmp GEindex_cv_tmp BS_GEindex_cv_exp1_tmp BS_GEindex_cv_tmp CI95_GEindex_cv CI95_GEindex_cv_tmp;
 clear id_exp1 idx_exp1 hue
+
+%% 実験3の標準偏差と変動係数
+for i = 1:object_exp3.material_num
+    
+    % 標準偏差
+    exp3.GEindex_std{i} = std(exp3.GEindex{i}, [], 2);
+    exp3.BS_GEindex_std{i} = std(exp3.BS_GEindex{i}, [], 2);
+    for j = 1:object_exp3.light_num
+        for k = 1:object_exp3.rough_num
+            CI95_GEindex_std_tmp(:,:,j,k) = CI95_bootstrap(exp3.BS_GEindex_std{i}(:,:,j,k))';
+        end
+    end
+    exp3.CI95_GEindex_std{i} = CI95_GEindex_std_tmp;
+    
+    %{
+    % 変動係数
+    mu = mean(exp3.GEindex{i}, 2);
+    exp3.GEindex_cv{i} = exp3.GEindex_std{i} ./ mu;
+    mu = mean(exp3.BS_GEindex{i}, 2);
+    exp3.BS_GEindex_cv{i} = exp3.BS_GEindex_std{i} ./ mu;
+    for j = 1:object_exp3.light_num
+        for k = 1:object_exp3.rough_num
+            CI95_GEindex_cv_tmp(:,:,j,k) = CI95_bootstrap(exp3.BS_GEindex_cv{i}(:,:,j,k))';
+        end
+    end
+    exp3.CI95_GEindex_cv{i} = CI95_GEindex_cv_tmp;
+    %}
+    
+end
 
 %% 色相ごとの光沢感変化量の単純な比較
 for i = 1:object_exp3.material_num

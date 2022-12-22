@@ -38,6 +38,12 @@ for i = 1:object.material_num
             load('../../mat/mask/highlight_mask.mat');
             load('../../mat/mask/highlight_round_mask.mat');
             
+            %{
+            % ハイライト領域変更した場合
+            load('../../mat/mask/HL_30per/highlight_mask.mat');
+            load('../../mat/mask/HL_30per/highlight_round_mask.mat');
+            %}
+            
             [iy, ix, ~] = size(mask);
             
             for h = 1:hue_num*2 % 有彩色 + 無彩色
@@ -52,7 +58,7 @@ for i = 1:object.material_num
                 mask_HL_near = highlight_round_mask(:,:,h_tmp,i,j,k);
                 mask_body = mask - mask_HL;
                 
-                %{
+                
                 %% HK効果の大きさを画像データと同じ形式で求める
                 % 彩度、色相を求める
                 [sat_map, sat_list] = get_saturation(img, mask, wp.d65_XYZ_disp');
@@ -158,8 +164,8 @@ for i = 1:object.material_num
         end
     end
     
-    %highlight_lum{i} = highlight_lum_tmp;
-    %contrast_lum{i} = contrast_tmp;
+    highlight_lum{i} = highlight_lum_tmp;
+    contrast_lum{i} = contrast_tmp;
     color_difference{i} = color_difference_tmp;
     
     color_dE76{i} = color_dE76_tmp;
@@ -170,7 +176,7 @@ end
 %save('../../mat/regress_var/val/contrast_lum.mat', 'contrast_lum');
 %save('../../mat/regress_var/val/color_difference.mat', 'color_difference');
 
-save('../../mat/regress_var/val/color_dE76.mat', 'color_dE76');
+%save('../../mat/regress_var/val/color_dE76.mat', 'color_dE76');
 
 %% 説明変数計算
 for i = 1:object.material_num
@@ -208,15 +214,26 @@ for i = 1:object.material_num
 end
 
 %% 保存
+
 save('../../mat/regress_var/highlight_lum_diff.mat', 'highlight_lum_diff');
 save('../../mat/regress_var/contrast_diff.mat', 'contrast_diff');
 save('../../mat/regress_var/color_diff.mat', 'color_diff');
+%}
+
+%{
+save('../../mat/regress_var/HL_30per/highlight_lum_diff.mat', 'highlight_lum_diff');
+save('../../mat/regress_var/HL_30per/contrast_diff.mat', 'contrast_diff');
+save('../../mat/regress_var/HL_30per/color_diff.mat', 'color_diff');
+%}
 
 %% 可視化
+%{
 load('../../mat/regress_var/highlight_lum_diff.mat');
 load('../../mat/regress_var/contrast_diff.mat');
 load('../../mat/regress_var/color_diff.mat');
 load('../../mat/stimuli_color/hue_mean_360.mat');
+%}
+load('../../mat/stimuli_color/hue_mean_360_mod.mat');
 clear txt
 for p = 1:3
     
@@ -248,7 +265,7 @@ for p = 1:3
         for j = 1:object.light_num
             for k = 1:object.rough_num
                 
-                x = hue_mean_360{i}(:,j,k);
+                x = hue_mean_360_mod{i}(:,j,k);
                 y = val{i}(:,:,j,k);
                 
                 if x(1)> 315
