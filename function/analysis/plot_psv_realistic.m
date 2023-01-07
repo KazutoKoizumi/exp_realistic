@@ -26,11 +26,11 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
     %vAbs = max(abs([v_min, v_max]));
     
     % プロット時のサイズ
-    sz.t = 16; %22;
-    sz.sgt = 14; %20;
-    sz.label = 16; %22;
-    sz.ax = 14; %20;
-    sz.lgd = 10; %16;
+    sz.t = 22; %22;
+    sz.sgt = 20; %20;
+    sz.label = 22; %22;
+    sz.ax = 20; %20;
+    sz.lgd = 20; %16;
     
     % プロット
     f = figure;
@@ -99,7 +99,9 @@ function f = plot_psv_realistic(psv_CI, flag_material, hue_deg)
         % axis
         xlabel('Color direction (degree)','FontSize',sz.label);
         xlim([-20 360]);
-        ylabel('PSV','FontSize',sz.label);
+        ylim([-2 2]);
+        %ylabel('PSV','FontSize',sz.label);
+        ylabel('Preference scale value','FontSize',sz.label);
         ax.FontSize = sz.ax;
         
         % legend

@@ -84,7 +84,7 @@ for i = 1:object.material_num
                     % 有意差の有無をもとに色付け
                     if sig_diff_matrix(u,v) == 1
                         color_map(u,v,:) = c_list(1,:);
-                        p_str(u,v) = "";
+                        p_str(u,v) = "＊";
                     elseif sig_diff_matrix(u,v) == 0
                         color_map(u,v,:) = c_list(4,:);
                         p_str(u,v) = string(pvalue);
@@ -108,8 +108,9 @@ for i = 1:object.material_num
             xticks(1:num_sti);
             yticks(1:num_sti);
             xticklabels(hue_name_label);
-            xtickangle(45);
+            %xtickangle(45);
             yticklabels(hue_name_label);
+            ax.FontSize = 18;
             
             fig.WindowState = 'maximized';
             graph_name = strcat('sig_diff_GEindex_colormap_', object.material(i), '_', object.light(j), '_', object.rough(k), '.png');

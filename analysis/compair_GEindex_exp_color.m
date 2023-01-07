@@ -378,9 +378,13 @@ for i = 1:object_exp3.material_num
     
     f.Position = [251,454,722,407];
     
+    ax = gca;
+    ax.FontSize = 14;
+    
     xticks(x);
     xticklabels(txt_label);
     xtickangle(30);
+    ylim([0 2.5]);
     
 end
 

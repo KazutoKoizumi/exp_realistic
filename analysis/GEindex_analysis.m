@@ -92,8 +92,10 @@ load('../../mat/stimuli_color/hue_mean_360_mod.mat');
 
 % グラフ設定
 graph_color = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
-sz.sgt = 12;
-sz.lgd = 8; %16;
+sz.sgt = 20;
+sz.lgd = 18; %16;
+sz.label = 20;
+sz.ax = 18;
 
 for i = 1:object.material_num
     
@@ -133,11 +135,13 @@ for i = 1:object.material_num
                 h_cuau(2) = errorbar(hue_x(10), GEindex_y(10), err(1,10), err(2,10), 'd', 'Color', graph_color(k,:));
                 % 銅と金にテキスト
                 if k == 1
-                    text(hue_x(9)+2, GEindex_y(9), 'Cu');
-                    text(hue_x(10)+2, GEindex_y(10), 'Au');
+                    text(hue_x(9)+2, GEindex_y(9), 'Cu', 'FontSize', 14);
+                    text(hue_x(10)+2, GEindex_y(10), 'Au', 'FontSize', 14);
                 end
             end
         end
+        
+        ax = gca;
         
         % サブプロットのタイトル
         t_txt = object.light(j);
@@ -145,8 +149,10 @@ for i = 1:object.material_num
         
         % axis
         xlim([-20 360]);
-        xlabel('Color direction (degree)');
-        ylabel('GE index');
+        ylim([0 2]);
+        xlabel('Color direction (degree)', 'FontSize', sz.label);
+        ylabel('GE index', 'FontSize', sz.label);
+        ax.FontSize = sz.ax;
         
         % legend
         lgd = legend(h, num2cell(object.rough));
