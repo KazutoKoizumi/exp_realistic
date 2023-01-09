@@ -370,16 +370,16 @@ for i = 1:object_exp3.material_num
             count = count + 1;
         end
     end
-    b1 = bar(x_exp1,y_exp1, 'BarWidth',bar_width, 'FaceColor',graph_color(1,:));
+    b(1) = bar(x_exp1,y_exp1, 'BarWidth',bar_width, 'FaceColor',graph_color(1,:));
     errorbar(x_exp1, y_exp1, err_exp1(1,:), err_exp1(2,:), 'o', 'Color',[0,0,0]);
     
-    b3 = bar(x_exp3,y_exp3, 'BarWidth',bar_width, 'FaceColor',graph_color(2,:));
+    b(2) = bar(x_exp3,y_exp3, 'BarWidth',bar_width, 'FaceColor',graph_color(2,:));
     errorbar(x_exp3, y_exp3, err_exp3(1,:), err_exp3(2,:), 'o', 'Color',[0,0,0]);
     
     f.Position = [251,454,722,407];
     
     ax = gca;
-    ax.FontSize = 14;
+    ax.FontSize = 18;
     
     xticks(x);
     xticklabels(txt_label);

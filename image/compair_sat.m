@@ -91,4 +91,7 @@ for i = 1:object.exp3.material_num
     xticklabels(txt_label);
     xtickangle(30);
     
+    ax = gca;
+    ax.FontSize = 14;
+    
 end

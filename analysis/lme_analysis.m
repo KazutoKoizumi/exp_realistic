@@ -143,7 +143,8 @@ for i = 1:2
 end
 
 % 色相間での各変数の変化を可視化する
-graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
+%graph_color = [[0 0 0]; [0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]];
+graph_color = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250]; [0.4660 0.6740 0.1880]];
 for i = 1:2
     switch i
         case 1
@@ -170,9 +171,15 @@ for i = 1:2
     end
     ax = gca;
     
-    xlabel('Color direction (degree)');
+    xlabel('Color direction (degree)', 'FontSize', 16);
     xlim([-10 360]);
-    ylabel('Value');
+    ylabel('Value', 'FontSize', 16);
+    ylim([-2 2]);
+    ax.FontSize = 14;
+    
+    lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
+    lgd = legend(lgd_txt, 'FontSize', 14);
+    lgd.Location = 'best';
     
     %lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
     %legend(h_color, lgd_txt, 'FontSize', 14, 'Location', 'eastoutside');

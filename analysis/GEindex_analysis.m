@@ -244,4 +244,25 @@ for i = 1:object.material_num
     
 end
 
+%% 素材条件ごとの平均結果をまとめてプロット（CuとAuは除く）
+f = figure;
+for i = 1:2
+    hold on;
+    x = mean(hue_deg, [2,3]);
+    y = GEindex_mean_all{i};
+    err = abs(GEindex_mean_all{i} - CI95_GEindex_mean_all{i});
+    
+    errorbar(x(1:8),y(1:8), err(1,1:8), err(2,1:8), '-o', 'Color', graph_color(i,:), 'LineWidth', 1.5);
+    
+end
+
+xlim([-20 360]);
+ylim([0 1.4]);
+xlabel('Color direction (degree)', 'FontSize', 20);
+ylabel('GE index', 'FontSize', 20);
+
+ax = gca;
+ax.FontSize = 18;
+
+legend({'metal', 'plastic'}, 'FontSize', 20, 'Location', 'southeast');
     

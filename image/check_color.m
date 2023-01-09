@@ -107,7 +107,7 @@ for i = 1:2 % material
                     sat_max = tmp;
                 end
                 
-                %{
+                
                 %% プロット
                 f = figure;
                 

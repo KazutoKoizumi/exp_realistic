@@ -227,7 +227,7 @@ save('../../mat/regress_var/HL_30per/color_diff.mat', 'color_diff');
 %}
 
 %% 可視化
-%{
+
 load('../../mat/regress_var/highlight_lum_diff.mat');
 load('../../mat/regress_var/contrast_diff.mat');
 load('../../mat/regress_var/color_diff.mat');

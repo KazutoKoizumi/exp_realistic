@@ -90,8 +90,8 @@ end
 % 色相については平均した値
 graph_color = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980]];
 txt_lgd = cell(2,2);
-txt_lgd(1,:) = {'exp1 DC', 'exp3 plastic'};
-txt_lgd(2,:) = {'exp1 BC', 'exp3 metal'};
+txt_lgd(1,:) = {'exp1 DC', 'exp4 plastic'};
+txt_lgd(2,:) = {'exp1 BC', 'exp4 metal'};
 for i = 1:object_exp3.material_num
     if i == 1
         m = 2;
@@ -124,11 +124,14 @@ for i = 1:object_exp3.material_num
     hold on;
     scatter(exp3_contrast, exp3_GEindex, [], graph_color(2,:));
     
-    xlabel('lightness contrast');
-    ylabel('GE index');
+    xlabel('brightness contrast', 'FontSize', 16);
+    ylabel('GE index', 'FontSize', 16);
     title(object_exp3.material(i));
     
-    legend(txt_lgd(i,:));
+    ax = gca;
+    ax.FontSize = 14;
+    
+    legend(txt_lgd(i,:), 'FontSize', 14);
     
 end
 
