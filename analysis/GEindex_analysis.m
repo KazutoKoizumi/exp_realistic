@@ -245,12 +245,17 @@ for i = 1:object.material_num
 end
 
 %% 素材条件ごとの平均結果をまとめてプロット（CuとAuは除く）
+% 金属, プラスチックの順番でプロット
 f = figure;
 for i = 1:2
+    
+    id_material = mod(i,2)+1;
+    hue_deg = hue_mean_360_mod{id_material};
+    
     hold on;
     x = mean(hue_deg, [2,3]);
-    y = GEindex_mean_all{i};
-    err = abs(GEindex_mean_all{i} - CI95_GEindex_mean_all{i});
+    y = GEindex_mean_all{id_material};
+    err = abs(GEindex_mean_all{id_material} - CI95_GEindex_mean_all{id_material});
     
     errorbar(x(1:8),y(1:8), err(1,1:8), err(2,1:8), '-o', 'Color', graph_color(i,:), 'LineWidth', 1.5);
     
