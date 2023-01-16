@@ -120,9 +120,9 @@ for i = 1:object_exp3.material_num
     
     % プロット
     figure;
-    scatter(exp1_contrast, exp1_GEindex, [], graph_color(1,:));
+    scatter(exp1_contrast, exp1_GEindex, 76, graph_color(1,:), 'LineWidth', 1.5);
     hold on;
-    scatter(exp3_contrast, exp3_GEindex, [], graph_color(2,:));
+    scatter(exp3_contrast, exp3_GEindex, 76, graph_color(2,:), 'LineWidth', 1.5);
     
     xlabel('brightness contrast', 'FontSize', 16);
     ylabel('GE index', 'FontSize', 16);
@@ -131,7 +131,7 @@ for i = 1:object_exp3.material_num
     ax = gca;
     ax.FontSize = 14;
     
-    legend(txt_lgd(i,:), 'FontSize', 14);
+    legend(txt_lgd(i,:), 'FontSize', 16);
     
 end
 
