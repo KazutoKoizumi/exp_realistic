@@ -175,7 +175,7 @@ for i = 1:2
     xlim([-10 360]);
     ylabel('Value', 'FontSize', 16);
     ylim([-2 2]);
-    ax.FontSize = 14;
+    ax.FontSize = 16;
     
     lgd_txt = {'GE-index', 'highlight brightness', 'brightness contrast', 'color contrast'};
     lgd = legend(lgd_txt, 'FontSize', 14);
