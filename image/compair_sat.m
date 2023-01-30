@@ -55,7 +55,7 @@ clear sat_HL_mean_exp1_tmp;
 graph_color = [[0 0.4470 0.7410]; [0.8500 0.3250 0.0980]];
 sz.sgt = 12;
 sz.lgd = 8; %16;
-for i = 1:object.exp3.material_num
+for i = 1:object.exp3.material_num % プラスチック、金属
     
     %% 全プロット
     f = figure;

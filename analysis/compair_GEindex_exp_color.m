@@ -403,14 +403,21 @@ for i = 1:object_exp3.material_num
     err = [err_exp1, err_exp3];
     y = [exp1.GEindex_mean_all_hue_mean{i}, exp3.GEindex_mean_all_hue_mean{i}];
     
-    b1 = bar(x(1),y(1), 'FaceColor',graph_color(1,:));
+    b(1) = bar(x(1),y(1), 'FaceColor',graph_color(1,:));
     errorbar(x(1),y(1), err(1,1), err(2,1), 'o', 'Color', [0,0,0]);
-    b3 = bar(x(2),y(2), 'FaceColor',graph_color(2,:));
+    b(2) = bar(x(2),y(2), 'FaceColor',graph_color(2,:));
     errorbar(x(2),y(2), err(1,2), err(2,2), 'o', 'Color', [0,0,0]);
         
     xticks(x);
     xticklabels({'exp1', 'exp3'});
     %xtickangle(30);
+    ylim([0 1.8]);
+    
+    ax = gca;
+    ax.FontSize = 18;
+    set(gca, "FontName", "Noto Sans CJK JP");
+    
+    %legend(b, {'色コントラスト条件', 'plastic'}, 'FontSize', 18);
     
 end
 clear x_exp1 x_exp3 y_exp1 y_exp3 err_exp1 err_exp3 x y
